@@ -23,7 +23,7 @@
 5.  Qwen3-30B-A3B isn’t in the kit: it’s too large to train on a CPU.
 
 **Notes on Proceeding with Polymath**
-1.  Polymath is a full fledged version where Packs can be built with special knowledge and live swapped on the weights loaded in CPU/GPU. It currently supports OLMoE (OLMoE-1B-7B) and Qwen (Qwen3-30B-A3B and Qwen3.6-35B).
+1.  Polymath is a full fledged version where Packs can be built with special knowledge and live swapped on the weights loaded in CPU/GPU. It currently supports OLMoE (OLMoE-1B-7B) and Qwen (Qwen3-30B-A3B and Qwen3.6-35B). https://llmlearn2025.github.io/Polymath/
 2.  It comes with Packsmith, Polymath’s GUI: a pack miner, trainer and tester in one. It mines documents into datasets holding the knowledge, reasoning and craft of a field, trains packs from them, and runs the inference engines to test and use the packs (Workbench and Test tabs).
 3.  It allows the user to create a mining strategy and mine the data as per their preferences. You set a mining strategy (Discover tab) and mine as you prefer.
 4.  Tested with Mining of Polymath Manual and first trials on Qwen3-30B are promising; OLMoE results vary.
