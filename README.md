@@ -1,0 +1,43 @@
+1. Polymath CPU test kit: **a proof of concept of add-on knowledge packs swapped live into a frozen language model**. The full fledged version is polymath with dedicated engines for CPU, GPU that are customized for OLMoE and QWEN.
+2. It runs on an ordinary CPU, no GPU needed, in about 10 to 30 minutes (Linux; git, gcc, make, Python 3.12+).
+3. A pack is a set of extra experts added beside a mixture-of-experts model’s own experts. The model’s weights are never changed.
+4. bash run_kit.sh creates a Python venv with PyTorch, downloads Colibri at a pinned version, applies Polymath’s pack patches and builds Colibri’s CPU engine. It then writes a test dataset about an invented world, trains one pack on the small model, and starts Colibri. The same running Colibri process answers every test question twice: first with no pack, then with the pack swapped in live. The table is printed in the terminal and saved as RESULTS.md.
+5. The kit includes a small 43 MB OLMoE-layout model (21 million weights) pretrained on its own invented world. You can also build your own: bash build_small_model.sh <minutes> pretrains one from scratch for as long as you choose.
+6. Because the pack’s world is invented, the base model cannot know it, and any right answer comes from the pack. The last row shows what the pack costs: how much of the model’s own knowledge it disturbs.
+7. results.json holds every question, the expected answer, and both replies (base and base + pack), including the reasoning steps.
+8. The kit is for researchers and enthusiasts to see for themselves that weights can be loaded into a model that is already running, here on the CPU (Polymath does the same on a GPU), and change what it knows. Once you have tried it, use Polymath to build packs for OLMoE and Qwen.
+9. The kit comes with a small pretrained language model, ready to use: an OLMoE-layout model with 21 million weights (43 MB, in model/small-olmoe), pretrained on its own invented world. You don’t need to build anything to run the test. If you’d rather start from scratch, bash build_small_model.sh <minutes> pretrains a fresh model on your CPU for as long as you choose, and bash run_kit.sh <that model's folder> tests the pack on it. A rebuilt model is close to the shipped one but not identical, because pretraining runs for a fixed time.
+
+**Notes for those who wish to experiment more**
+1.  To test with the real OLMoE from Hugging Face: bash run_kit.sh olmoe (untested so far; about 32 GB RAM and may take time on a CPU)
+2.  To build your own small model: bash build_small_model.sh <minutes>, then bash run_kit.sh ~/.polymath-kit/models/small-olmoe-rebuilt.
+3.  Each model gets its own results folder under ~/.polymath-kit/runs/, so runs on different models never mix. There’s no need to delete anything between them.
+4.  If you rebuild the small model a second time, delete ~/.polymath-kit/runs/small-olmoe-rebuilt before running the kit again.
+5.  --retrain trains the pack again; --tests N asks N questions per row; --threads N sets the CPU threads.
+
+**Limitations**
+1.  Linux only. Windows users can try WSL2 (Ubuntu inside Windows); this is untested.
+2.  It doesn’t run on plain Windows: the scripts are bash, Colibri is built with gcc and make for Linux, and the live pack swap uses SIGHUP, a Linux signal Windows doesn’t have.
+3.  The kit trains one pack, on the invented harbour world. Packs from your own dataset are planned.
+4.  The small model only knows its invented world and doesn’t read ordinary English, so a pack in ordinary English (for example, about Polymath’s manual) teaches it nothing. Use a real model for that.
+5.  Qwen3-30B-A3B isn’t in the kit: it’s too large to train on a CPU.
+
+**Notes on Proceeding with Polymath**
+1.  Polymath is a full fledged version where Packs can be built with special knowledge and live swapped on the weights loaded in CPU/GPU. It currently supports OLMoE (OLMoE-1B-7B) and Qwen (Qwen3-30B-A3B and Qwen3.6-35B).
+2.  It comes with Packsmith, Polymath’s GUI: a pack miner, trainer and tester in one. It mines documents into datasets holding the knowledge, reasoning and craft of a field, trains packs from them, and runs the inference engines to test and use the packs (Workbench and Test tabs).
+3.  It allows the user to create a mining strategy and mine the data as per their preferences. You set a mining strategy (Discover tab) and mine as you prefer.
+4.  Tested with Mining of Polymath Manual and first trials on Qwen3-30B are promising; OLMoE results vary.
+5.  A pack is only as good as its dataset. In our trials, neither the miner’s data nor data written with Claude was enough alone; the two merged (Composer tab → Combine datasets) worked well.
+6.  You can download a model directly from Hugging face using settings tab. then click Set up for colibri and choose Inference and training.This converts it to the int4 (Qwen) or int8 (OLMoE) format Colibri serves.
+7.  Polymath user manual gives extensive instruction. 
+8.  The Tab workbench allows loading of models and packs. In the Workbench, packs answered well with thinking off; with thinking on they were weaker, because the training data had no think blocks.
+9.  The patched Colibri engine (B-slot packs) works as expected. The polymath-c engine needs more testing; first results are promising.
+10.  The scripts run.sh prepares everything including venv, patches, and the engines for both CPU & GPU (when the CUDA toolkit is installed) and then starts Packsmith
+11.  Train tab: turn mined data into a pack. Choose a dataset, a base model and a pack size (small 1 × 4 up to huge 8 × 12: experts per layer × layers), then train. The defaults are the ones the regression test settled on: experts start as copies of the base experts the data uses most, a KL anchor keeps the base’s own answers to general questions, the number of passes is chosen from the dataset’s size, and the epoch that scores best on the dataset’s held-out tests is kept. Training pauses the Workbench engine and puts it back afterwards, and a crash resumes from the last finished epoch.
+12. Test tab: compare candidates side by side on the same questions. A candidate is an engine with packs at set strengths: the same pack at 10%, 100% and 150%, two packs on one model, or similar packs on different models. Each engine’s base model is added as the reference, so you see what a pack adds and what it disturbs. Questions can be asked one by one or as one conversation per candidate; with an expected answer, each reply is marked right or wrong. Without a judge it shows speed, cut-off replies, unclosed thinking, repeating and “same as base”. Evaluate then has your LLM judge the answers blind, without knowing which candidate wrote them. A run is a resumable background job.
+13. Train Lab: find out which way of training works best for your data. The Train tab trains one way; the Lab tries several on the same dataset and tells you which actually answers better.
+    -  Baseline first: today’s Train tab defaults are always trained first. Each ready-made experiment changes one thing, so a difference has a single cause: score every epoch (was the kept epoch the best?), loss on the answer only or the final answer only, more passes, twice the layers, a larger batch, easy-to-hard ordering, and thinking trained both ways (filled and empty think blocks, for Qwen). You can also save recipes of your own.
+    -  Honest figures: every cell is a share with its count and 95% interval, for example 67% (101 of 150, 59 to 74). A result is marked better or worse than the baseline only when the intervals don’t overlap. Chat models are scored with thinking on and off, as separate tables.
+    -  Reasoning datasets: the Lab can add reasoning items to a dataset (Question / Reasoning / Answer) from its worked problems, its argument passages (each step quoting the passage), and facts linked into 2- and 3-step questions, plus, only if ticked, invented situations, marked as constructed. Every item is checked against the source, and dropped items are listed with the reason. Long items are never cut silently. “Generate reasoning blocks” puts the reasoning into Qwen’s think block. Two ready-made recipes then show what the reasoning adds: the dataset without it, and the reasoning with only the facts it rests on.
+    -  Nothing leaks out: the Lab never changes the Train tab, its defaults or your library. Its packs stay in the Lab, marked “(test_lab)”, until you promote one to a normal pack.
+14. This is a proof of concept, so updates will be rare unless someone takes over the project. A newer version of the polymath code, with packs tested on an RTX 5090, is held back for now after a hardware failure on the test machine, and will be published when it can be recovered.
