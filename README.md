@@ -29,7 +29,7 @@
 4.  Tested with Mining of Polymath Manual and first trials on Qwen3-30B are promising; OLMoE results vary.
 5.  A pack is only as good as its dataset. In our trials, neither the miner’s data nor data written with Claude was enough alone; the two merged (Composer tab → Combine datasets) worked well.
 6.  You can download a model directly from Hugging face using settings tab. then click Set up for colibri and choose Inference and training.This converts it to the int4 (Qwen) or int8 (OLMoE) format Colibri serves.
-7.  Polymath user manual gives extensive instruction. 
+7.  Polymath user manual gives extensive instruction. https://llmlearn2025.github.io/Polymath/polymath_user_manual_151126.html
 8.  The Tab workbench allows loading of models and packs. In the Workbench, packs answered well with thinking off; with thinking on they were weaker, because the training data had no think blocks.
 9.  The patched Colibri engine (B-slot packs) works as expected. The polymath-c engine needs more testing; first results are promising.
 10.  The scripts run.sh prepares everything including venv, patches, and the engines for both CPU & GPU (when the CUDA toolkit is installed) and then starts Packsmith
