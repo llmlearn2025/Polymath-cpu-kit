@@ -1,0 +1,68 @@
+{
+ "id": "literature-craft",
+ "domain": "literature / an author's craft (e.g. Shakespeare)",
+ "intent": "craft",
+ "books": [
+  "plays",
+  "novels",
+  "collected works"
+ ],
+ "moves": [
+  {
+   "name": "introduce-character",
+   "pattern": "craft",
+   "desc": "How a character is introduced and revealed"
+  },
+  {
+   "name": "dialogue-motive",
+   "pattern": "craft",
+   "desc": "Dialogue that reveals motive and status"
+  },
+  {
+   "name": "imagery",
+   "pattern": "craft",
+   "desc": "Recurring imagery and metaphor"
+  },
+  {
+   "name": "structure",
+   "pattern": "sequence",
+   "desc": "Scene and act structure, rise and turn"
+  },
+  {
+   "name": "tone-shift",
+   "pattern": "craft",
+   "desc": "Alternating comic and tragic registers"
+  },
+  {
+   "name": "verse-prose",
+   "pattern": "craft",
+   "desc": "Verse vs prose and metre by character and situation"
+  }
+ ],
+ "order": [
+  "situation",
+  "characters",
+  "conflict",
+  "turn",
+  "resolution"
+ ],
+ "where": [
+  "soliloquies",
+  "opening scenes",
+  "climaxes"
+ ],
+ "situations": [
+  "rehearsal notes",
+  "a scholar's commentary",
+  "a playwriting workshop"
+ ],
+ "pitfalls": [
+  "imitating surface archaisms only"
+ ],
+ "analogies": [
+  "law/drafting: craft layer"
+ ],
+ "test": "held-out scenes perplexity; blind continuation judged against the author",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

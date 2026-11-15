@@ -1,0 +1,78 @@
+{
+ "id": "law-offence-commentary",
+ "domain": "law / criminal offences commentary",
+ "intent": "reasoning",
+ "books": [
+  "section-wise commentary",
+  "criminal law treatise"
+ ],
+ "moves": [
+  {
+   "name": "identify-offence",
+   "pattern": "gate",
+   "desc": "Decide which offence the facts may fall under"
+  },
+  {
+   "name": "check-ingredient",
+   "pattern": "element",
+   "desc": "Test each ingredient of the offence against the facts"
+  },
+  {
+   "name": "infer-intention",
+   "pattern": "cue",
+   "desc": "Infer the mental element from conduct and circumstances"
+  },
+  {
+   "name": "distinguish-neighbour",
+   "pattern": "distinction",
+   "desc": "Separate the offence from neighbouring offences by the deciding ingredient"
+  },
+  {
+   "name": "apply-exception",
+   "pattern": "exception",
+   "desc": "Apply general or specific exceptions"
+  },
+  {
+   "name": "fix-punishment",
+   "pattern": "decision",
+   "desc": "State punishment and classification"
+  },
+  {
+   "name": "cite-authority",
+   "pattern": "craft",
+   "desc": "Support each point with leading judgments"
+  }
+ ],
+ "order": [
+  "facts",
+  "candidate offence",
+  "ingredients one by one",
+  "mental element",
+  "neighbouring offences",
+  "exceptions",
+  "punishment"
+ ],
+ "where": [
+  "statutory illustrations",
+  "'distinguished from' passages",
+  "case notes under each section"
+ ],
+ "situations": [
+  "police diary entry",
+  "charge framing",
+  "trial court judgment",
+  "counsel's advice",
+  "bail hearing",
+  "appeal memo"
+ ],
+ "pitfalls": [
+  "treating motive as intention",
+  "ignoring the time at which intention is formed"
+ ],
+ "analogies": [
+  "medicine/differential diagnosis: elements ≈ criteria, neighbours ≈ differentials"
+ ],
+ "test": "unseen fact patterns with minimal pairs; held-out sections; base vs pack",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

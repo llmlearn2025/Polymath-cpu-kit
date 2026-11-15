@@ -1,0 +1,25 @@
+Polymath
+Copyright 2026 LLMLearn2026 (a pseudonym of the author) and the Polymath contributors
+
+Licensed under the Business Source License 1.1 (see LICENSE; COMMERCIAL.md explains it).
+On the Change Date, 11 November 2028, the Apache License, Version 2.0 applies in its place
+(LICENSES/Apache-2.0.txt).
+
+Third-party material
+
+This repository contains patches for colibri (https://github.com/JustVugg/colibri),
+Copyright 2026 Vincenzo Fornaro, licensed under the Apache License, Version 2.0
+(LICENSES/Apache-2.0.txt). colibri itself is not redistributed here:
+install_patched_colibri.sh downloads it at the pinned commit in
+engines/patched-colibri/UPSTREAM_COMMIT and applies the patches in
+engines/patched-colibri/patches/ and engines/polymath-c/patches/.
+
+The patch files quote lines of colibri as context. Those lines are colibri's and remain
+under the Apache License, Version 2.0. The changes that the patches make, and the new
+source files in engines/patched-colibri/files/, engines/patched-colibri/windows/files/ and
+engines/polymath-c/files/, are
+modifications by LLMLearn2026 and the Polymath contributors and are part of the Licensed
+Work. Nothing here changes the license of colibri.
+
+Base models (for example OLMoE and Qwen3-MoE) and Python dependencies are not included in
+this repository. Each is obtained by the user under its own license.

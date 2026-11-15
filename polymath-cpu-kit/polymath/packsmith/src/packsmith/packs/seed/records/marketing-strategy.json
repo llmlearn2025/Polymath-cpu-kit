@@ -1,0 +1,68 @@
+{
+ "id": "marketing-strategy",
+ "domain": "marketing / campaign strategy",
+ "intent": "reasoning",
+ "books": [
+  "marketing strategy book",
+  "case collections"
+ ],
+ "moves": [
+  {
+   "name": "segment",
+   "pattern": "gate",
+   "desc": "Define the target segment"
+  },
+  {
+   "name": "diagnose-metrics",
+   "pattern": "cue",
+   "desc": "Diagnose the problem from metrics"
+  },
+  {
+   "name": "position",
+   "pattern": "distinction",
+   "desc": "Position against competitors"
+  },
+  {
+   "name": "channel-mix",
+   "pattern": "decision",
+   "desc": "Choose channels and message"
+  },
+  {
+   "name": "budget-tradeoff",
+   "pattern": "tradeoff",
+   "desc": "Trade reach, cost and brand"
+  },
+  {
+   "name": "test-iterate",
+   "pattern": "sequence",
+   "desc": "Set goals, test and iterate"
+  }
+ ],
+ "order": [
+  "goal",
+  "audience",
+  "diagnosis",
+  "positioning",
+  "plan",
+  "measure"
+ ],
+ "where": [
+  "case studies",
+  "frameworks",
+  "before/after campaigns"
+ ],
+ "situations": [
+  "client brief",
+  "agency pitch",
+  "post-campaign review"
+ ],
+ "pitfalls": [
+  "vanity metrics"
+ ],
+ "analogies": [
+  "medicine: diagnose then treat"
+ ],
+ "test": "briefs → strategy; judged against case outcomes",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

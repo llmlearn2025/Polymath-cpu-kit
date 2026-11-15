@@ -1,0 +1,74 @@
+{
+ "id": "radiology-reading",
+ "domain": "medicine / radiology image reading",
+ "intent": "diagnostic",
+ "books": [
+  "radiology primer",
+  "reporting guide"
+ ],
+ "moves": [
+  {
+   "name": "check-quality",
+   "pattern": "gate",
+   "desc": "Check projection, exposure, rotation and patient details"
+  },
+  {
+   "name": "reading-order",
+   "pattern": "sequence",
+   "desc": "Follow a fixed reading order (e.g. ABCDE for chest films)"
+  },
+  {
+   "name": "describe-finding",
+   "pattern": "cue",
+   "desc": "Describe a finding by location, size, density, margins"
+  },
+  {
+   "name": "localise",
+   "pattern": "element",
+   "desc": "Localise using anatomical signs"
+  },
+  {
+   "name": "differentials",
+   "pattern": "distinction",
+   "desc": "List and narrow differentials for the pattern"
+  },
+  {
+   "name": "red-flag",
+   "pattern": "exception",
+   "desc": "Escalate urgent findings"
+  },
+  {
+   "name": "report",
+   "pattern": "craft",
+   "desc": "Write a structured report"
+  }
+ ],
+ "order": [
+  "quality",
+  "systematic review",
+  "findings",
+  "localisation",
+  "differential",
+  "impression",
+  "recommendation"
+ ],
+ "where": [
+  "worked reports",
+  "pattern tables",
+  "sign glossaries"
+ ],
+ "situations": [
+  "reporting session",
+  "MDT meeting",
+  "on-call review"
+ ],
+ "pitfalls": [
+  "satisfaction of search"
+ ],
+ "analogies": [
+  "ornithology identification: systematic observation then look-alikes"
+ ],
+ "test": "text descriptions of studies → findings and impression (images need a vision model)",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

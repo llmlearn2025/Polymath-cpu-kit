@@ -1,0 +1,95 @@
+--- a/c/olmoe.c
++++ b/c/olmoe.c
+@@ -1094,6 +1094,8 @@
+     s->pinned = 0;
+ }
+ 
++#include "olmoe_overlay.h"   /* versioned expert overlays (moe-knowledge, D-007) */
++
+ /* A GGUF's expert into its slot: the file's blocks (olm_gx_geometry). */
+ /* A GGUF expert into its slot. On the CPU alone (m->gx_r16) its rows are interleaved by 16
+  * as the dense matrices are (coli_ggml_held_type, OLM_ILV16=0 keeps the file's rows), so a
+@@ -1159,7 +1161,8 @@
+     int64_t ng = (int64_t)cc->inter * cc->hidden, nd = (int64_t)cc->hidden * cc->inter;
+     int64_t want_w = ng + ng + nd;
+     int64_t want_s = (int64_t)cc->inter + cc->inter + cc->hidden;
+-    st_tensor *tw = st_find(&m->S, nm), *ts = st_find(&m->S, qsnm);
++    shards *src = olm_ov_src(m, nm);   /* the active overlay's copy of this expert, else the base */
++    st_tensor *tw = st_find(src, nm), *ts = st_find(src, qsnm);
+     if (!tw) { missing_merged_expert_tensor(nm); exit(1); }
+     if (tw->nbytes != want_w) {
+         fprintf(stderr, "%s: expert weight is %lld bytes — expected %lld for [inter=%d,hidden=%d], "
+@@ -1170,8 +1173,8 @@
+         fprintf(stderr, "%s: scale array is %lld elems — expected %lld, refusing (untrusted container)\n",
+                 qsnm, (long long)ts->numel, (long long)want_s); exit(1); }
+     double started = now_s();
+-    st_read_raw(&m->S, nm, s->g, g_expert_drop);
+-    st_read_f32(&m->S, qsnm, s->gs, 0);  /* scales are F32; use typed reader for dtype safety */
++    st_read_raw(src, nm, s->g, g_expert_drop);
++    st_read_f32(src, qsnm, s->gs, 0);  /* scales are F32; use typed reader for dtype safety */
+     __atomic_fetch_add(&m->disk_ns, (uint64_t)((now_s() - started) * 1e9), __ATOMIC_RELAXED);
+ }
+ 
+@@ -1440,6 +1443,7 @@
+ static void expert_put(Slot *s) {
+     pthread_mutex_lock(&g_pilot_mx);
+     s->busy--;
++    if (g_ov_waiting) pthread_cond_broadcast(&g_pilot_cv);   /* an overlay swap is draining readers */
+     pthread_mutex_unlock(&g_pilot_mx);
+ }
+ 
+@@ -1945,6 +1949,7 @@
+     float *logits = falloc((int64_t)S*E);
+     OLM_MM(logits, x, l->ggate, l->gate, l->vk_gate, S, D, E);
+     moe_routed(m, layer, x, S, logits, out);
++    olm_kn_apply(m, layer, x, S, out);   /* B-slot knowledge experts of the active overlay */
+     free(logits);
+ }
+ 
+@@ -1962,6 +1967,7 @@
+     Cfg *c = &m->c;
+     int D = c->hidden;
+     float *nrm = falloc((int64_t)S*D), *tmp = falloc((int64_t)S*D);
++    if (layer_begin == 0) olm_overlay_poll(m);   /* a SIGHUP-requested overlay swap, between passes */
+     for (int i = layer_begin; i < layer_end; i++) {
+         if (coli_prompt_break()) break;   /* a served prompt's CANCEL: step() leaves without the rest */
+         Layer *l = &m->L[i];
+@@ -2144,9 +2150,11 @@
+ 
+ #ifdef COLI_CUDA
+ #include "olmoe_cuda_chain.h"   /* COLI_CUDA=1: every layer, its experts too, as one chain on the card */
++#include "olmoe_overlay_cuda.h"  /* overlays on the CUDA chain (moe-knowledge) */
+ #endif
+ 
+ static float *step(Model *m, const int *ids, int S, int pos_base) {
++    olm_overlay_poll(m);   /* a SIGHUP-requested overlay swap, before any device or CPU work */
+     Cfg *c = &m->c; int D = c->hidden;
+     kv_room_fit(m, pos_base + S);   /* before the positions' pages are written */
+     if (g_pilot && m->token_count > 0) {
+@@ -3384,7 +3392,7 @@
+      * it -- ASan: stack-use-after-return, READ of size 8, in a worker thread,
+      * with the run's tokens already correct (#1262). Static storage outlives
+      * every thread, so the pointer the worker holds stays valid. */
+-        static Model m; model_init(&m, snap, cap, bits);
++        static Model m; model_init(&m, snap, cap, bits); olm_overlay_from_env(&m);
+         m.max_t = ctx_cap;
+         m.K = calloc(m.c.n_layers, sizeof(float*)); m.V = calloc(m.c.n_layers, sizeof(float*));
+         for (int i = 0; i < m.c.n_layers; i++) {
+@@ -3445,7 +3453,7 @@
+      * it -- ASan: stack-use-after-return, READ of size 8, in a worker thread,
+      * with the run's tokens already correct (#1262). Static storage outlives
+      * every thread, so the pointer the worker holds stays valid. */
+-        static Model m; model_init(&m, snap, cap, bits);
++        static Model m; model_init(&m, snap, cap, bits); olm_overlay_from_env(&m);
+         printf("resident weights loaded in %.1fs | RSS after load: %.2f GB\n", m.dense_load_s, rss_gb());
+         Tok T;
+         char tokpath[2048]; snprintf(tokpath, sizeof(tokpath), "%s/tokenizer.json", snap);
+@@ -3478,7 +3486,7 @@
+      * it -- ASan: stack-use-after-return, READ of size 8, in a worker thread,
+      * with the run's tokens already correct (#1262). Static storage outlives
+      * every thread, so the pointer the worker holds stays valid. */
+-    static Model m; model_init(&m, snap, cap, bits);
++    static Model m; model_init(&m, snap, cap, bits); olm_overlay_from_env(&m);
+     printf("resident weights loaded in %.1fs | RSS after load: %.2f GB\n", m.dense_load_s, rss_gb());
+     if (!ref_fits(prompt, np, full, nfull, m.c.vocab)) { free(buf); free(arena); return 1; }
+ 

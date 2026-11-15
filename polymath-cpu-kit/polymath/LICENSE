@@ -1,0 +1,172 @@
+License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
+"Business Source License" is a trademark of MariaDB Corporation Ab.
+
+Parameters
+
+Licensor:             LLMLearn2026 (a pseudonym of the author)
+
+Licensed Work:        Polymath, in every version that the Licensor first
+                      publishes before the Change Date. Polymath consists of
+                      Packsmith, the Polymath Engine, polymath-c, and the
+                      Licensor's patches and source files for colibri, as
+                      contained in this repository.
+                      The Licensed Work is (c) 2026 LLMLearn2026.
+                      Material of third parties that the NOTICE file
+                      identifies is not part of the Licensed Work and remains
+                      under its own license.
+
+Additional Use Grant: 1. Noncommercial use. You may make production use of the
+                      Licensed Work for any Noncommercial Purpose.
+
+                      2. Commercial use on notice. You may make production
+                      use of the Licensed Work for a Commercial Purpose if
+                      (a) you have given the Licensor a Notice of Use, and
+                      (b) for as long as that use continues, you maintain the
+                      Acknowledgement. This permission takes effect when the
+                      Notice of Use is given. It does not depend on a reply
+                      from the Licensor, and no fee or royalty is payable
+                      for it.
+
+                      3. Output. Packs, datasets and other material that you
+                      create by using the Licensed Work, and that contain no
+                      part of the Licensed Work, ("Output") are not the
+                      Licensed Work, and this License does not apply to
+                      them. Paragraph 2 applies to your use of the Licensed
+                      Work to create Output where that use is for a
+                      Commercial Purpose.
+
+                      4. No liability. The permissions in paragraphs 1 and 2
+                      are given on the condition that, to the extent
+                      permitted by applicable law, neither the Licensor nor
+                      any contributor to the Licensed Work is liable to you
+                      for any loss or damage that arises from the Licensed
+                      Work or from its use, whether in contract, in tort
+                      (including negligence) or otherwise. If you do not
+                      accept this condition, do not make production use of
+                      the Licensed Work.
+
+                      5. Definitions. In this Additional Use Grant:
+
+                      "Commercial Purpose" means earning revenue by
+                      supplying to others, by sale, license, subscription or
+                      otherwise, (a) the Licensed Work, or a product or
+                      service that contains or runs the Licensed Work or any
+                      part or modified version of it; or (b) Output.
+
+                      "Noncommercial Purpose" means any purpose that is not a
+                      Commercial Purpose. It includes personal use, study,
+                      research, experiment and teaching. It also includes the
+                      use of the Licensed Work or of Output by an
+                      organisation, including a business, within its own
+                      operations, where neither the Licensed Work nor Output
+                      is supplied to others for revenue.
+
+                      "Notice of Use" means a written notice that states your
+                      name (for an organisation, its legal name), a means of
+                      contacting you, and in general terms the use that you
+                      make of the Licensed Work. A Notice of Use is given
+                      when (i) it is posted as an issue in the Licensor's
+                      public source repository for the Licensed Work, or as a
+                      discussion at a public account of the Licensor that the
+                      file COMMERCIAL.md distributed with the Licensed Work
+                      names; or (ii) the Licensor otherwise receives it in
+                      writing. If none of those means is available when you
+                      seek to give it, a Notice of Use is given when you
+                      publish it at a publicly accessible location, provided
+                      that you keep it published while the use continues. A
+                      Notice of Use given by an organisation also covers the
+                      organisations under common control with it.
+
+                      "Acknowledgement" means the statement "Uses Polymath by
+                      LLMLearn2026" or, for Output, "Made with Polymath by
+                      LLMLearn2026", or a statement to the same effect. It
+                      must appear where the notices, credits or documentation
+                      of what you supply are ordinarily found. The
+                      Acknowledgement must not suggest that the Licensor
+                      endorses you or what you supply.
+
+Change Date:          2028-11-11
+
+Change License:       Apache License, Version 2.0
+
+For other arrangements for the Licensed Work (for example support, a warranty,
+or a transfer of the Licensor's rights), contact the Licensor as the file
+COMMERCIAL.md describes. Such an arrangement binds only if the Licensor and you
+agree it in writing.
+
+Notice
+
+The Business Source License (this document, or the "License") is not an Open
+Source license. However, the Licensed Work will eventually be made available
+under an Open Source License, as stated in this License.
+
+-----------------------------------------------------------------------------
+
+Business Source License 1.1
+
+Terms
+
+The Licensor hereby grants you the right to copy, modify, create derivative
+works, redistribute, and make non-production use of the Licensed Work. The
+Licensor may make an Additional Use Grant, above, permitting limited
+production use.
+
+Effective on the Change Date, or the fourth anniversary of the first publicly
+available distribution of a specific version of the Licensed Work under this
+License, whichever comes first, the Licensor hereby grants you rights under
+the terms of the Change License, and the rights granted in the paragraph
+above terminate.
+
+If your use of the Licensed Work does not comply with the requirements
+currently in effect as described in this License, you must purchase a
+commercial license from the Licensor, its affiliated entities, or authorized
+resellers, or you must refrain from using the Licensed Work.
+
+All copies of the original and modified Licensed Work, and derivative works
+of the Licensed Work, are subject to this License. This License applies
+separately for each version of the Licensed Work and the Change Date may vary
+for each version of the Licensed Work released by Licensor.
+
+You must conspicuously display this License on each original or modified copy
+of the Licensed Work. If you receive the Licensed Work in original or
+modified form from a third party, the terms and conditions set forth in this
+License apply to your use of that work.
+
+Any use of the Licensed Work in violation of this License will automatically
+terminate your rights under this License for the current and all other
+versions of the Licensed Work.
+
+This License does not grant you any right in any trademark or logo of
+Licensor or its affiliates (provided that you may use a trademark or logo of
+Licensor as expressly required by this License).
+
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+TITLE.
+
+MariaDB hereby grants you permission to use this License’s text to license
+your works, and to refer to it using the trademark “Business Source License”,
+as long as you comply with the Covenants of Licensor below.
+
+Covenants of Licensor
+
+In consideration of the right to use this License’s text and the “Business
+Source License” name and trademark, Licensor covenants to MariaDB, and to all
+other recipients of the licensed work to be provided by Licensor:
+
+1. To specify as the Change License the GPL Version 2.0 or any later version,
+   or a license that is compatible with GPL Version 2.0 or a later version,
+   where “compatible” means that software provided under the Change License can
+   be included in a program with software provided under GPL Version 2.0 or a
+   later version. Licensor may specify additional Change Licenses without
+   limitation.
+
+2. To either: (a) specify an additional grant of rights to use that does not
+   impose any additional restriction on the right granted in this License, as
+   the Additional Use Grant; or (b) insert the text “None”.
+
+3. To specify a Change Date.
+
+4. Not to modify this License in any other way.

@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Packsmith</title>
+<link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">Packsmith</div>
+  <nav id="tabs">
+    <button data-tab="assistant">Assistant</button>
+    <button data-tab="library" class="on">Library</button>
+    <button data-tab="userpack">User pack</button>
+    <button data-tab="topics">Topics</button>
+    <button data-tab="approaches">Approaches</button>
+    <button data-tab="discover">Discover</button>
+    <button data-tab="playbook">Playbook</button>
+    <button data-tab="generate">Generate</button>
+    <button data-tab="datasets">Datasets</button>
+    <button data-tab="composer">Composer</button>
+    <button data-tab="train">Train</button>
+    <button data-tab="workbench">Workbench</button>
+    <button data-tab="test">Test</button>
+    <button data-tab="lab">Train Lab</button>
+    <button data-tab="storage">Storage</button>
+    <button data-tab="jobs">Jobs</button>
+    <button data-tab="settings">Settings</button>
+    <button data-tab="help">Help</button>
+  </nav>
+  <div class="top-right">
+    <label>Model <select id="model"></select></label>
+    <label title="LLM calls in flight for mining, back-test, generation, composer, OCR and judging. Set the LLM server's parallel slots (LM Studio: Max concurrent predictions; Ollama: OLLAMA_NUM_PARALLEL) to at least this.">Parallel <input id="par" type="number" min="1" max="32" value="4" style="width:4em"></label>
+    <label>Topic <select id="topicSel"></select></label>
+    <span id="engineBadge" class="badge">engine …</span>
+  </div>
+</header>
+
+<main>
+<!-- ============================== LIBRARY -->
+<section id="tab-assistant" class="tab">
+  <div class="cols wb">
+    <div class="card">
+      <h3>Conversations</h3>
+      <button id="asNew" class="primary">New chat</button>
+      <div id="asList" class="list small"></div>
+      <h3>Run</h3>
+      <div id="asPipe" class="small muted">No run yet.</div>
+    </div>
+    <div class="card chat">
+      <div class="row small"><b id="asTitle">Assistant</b><span class="grow"></span><span class="muted">uses the LLM chosen at the top</span></div>
+      <div id="asChat" class="chatlog"><div class="muted small asintro">Tell me what you want learned and from which document — for example
+        “Train me on chapters 4 and 5 of the Finance Commission report: the figures and the reasons for each recommendation.”
+        I will ask a few questions, show a plan, and run it: dataset only, dataset + training, or dataset + training + test.</div></div>
+      <div class="row small"><label class="inline">attach <select id="asDoc"><option value="">— a document from the library —</option></select></label>
+        <input type="file" id="asFile" title="upload a document"><span id="asAtt" class="muted"></span></div>
+      <textarea id="asQ" rows="3" placeholder="Message… (Ctrl+Enter)"></textarea>
+      <div class="row"><button id="asSend" class="primary">Send</button><button id="asPause" class="ghost">Pause run</button><button id="asResume" class="ghost">Resume run</button><button id="asCancel" class="ghost">Cancel run</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-library" class="tab on">
+  <div class="row">
+    <form id="uploadForm" class="card inline">
+      <input type="file" name="file" required accept=".pdf,.docx,.html,.htm,.xhtml,.epub,.txt,.md">
+      <input name="name" placeholder="Display name (optional)">
+      <button>Upload</button>
+    </form>
+    <label class="inline">Document <select id="docSel"></select></label>
+    <button id="docDelete" class="ghost">Delete document</button>
+  </div>
+  <div class="viewer">
+    <aside id="thumbs" class="thumbs"></aside>
+    <div class="pagepane">
+      <div class="pagebar">
+        <button id="prevPage">◀</button>
+        <input id="pageNo" type="number" min="1" value="1"> / <span id="pageCount">0</span>
+        <button id="nextPage">▶</button>
+        <label><input type="checkbox" id="showText"> text</label>
+        <button id="ocrPage" class="ghost">OCR this page</button>
+        <button id="ocrAll" class="ghost">OCR pages without text</button>
+        <span id="pageFlags" class="muted"></span>
+      </div>
+      <div id="pageView" class="pageview"></div>
+      <div id="pageTextWrap" class="hidden">
+        <textarea id="pageText" rows="14"></textarea>
+        <button id="savePageText">Save page text</button>
+      </div>
+    </div>
+    <aside class="tagpanel card">
+      <h3>Tag a region</h3>
+      <label>Type <select id="regType"></select></label>
+      <label>Name <input id="regName" placeholder="e.g. Ch. 7 — Theft"></label>
+      <label>Role <select id="regRole"><option>train</option><option>context</option><option>heldout</option><option>exclude</option></select></label>
+      <div class="row"><button id="markStart">Mark start [</button><button id="markEnd">Mark end ]</button></div>
+      <div class="muted">start <b id="regStart">–</b> · end <b id="regEnd">–</b></div>
+      <button id="saveRegion" class="primary">Save region</button>
+      <h3>Regions</h3>
+      <div id="regionList" class="list"></div>
+      <h3>Printed page number</h3>
+      <div class="row"><input id="printedNo" type="number" placeholder="printed no."><button id="setPrinted">Set for this page</button></div>
+      <div id="calib" class="muted"></div>
+      <h3>Search</h3>
+      <div class="row"><input id="searchQ" placeholder="term"><select id="searchScope"><option value="all">whole doc</option><option value="index">book index regions</option></select><button id="searchBtn">Go</button></div>
+      <div id="searchRes" class="list small"></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================== TOPICS -->
+<section id="tab-topics" class="tab">
+  <div class="cols">
+    <div class="card">
+      <h3>Topic</h3>
+      <input type="hidden" id="tId">
+      <label>Name <input id="tName" placeholder="e.g. Recorded telephone conversations as evidence"></label>
+      <label>Domain <input id="tDomain" placeholder="e.g. law / evidence"></label>
+      <label>What is it about? <textarea id="tAbout" rows="3"></textarea></label>
+      <label>Playbook wanted <select id="tIntent">
+        <option value="reasoning">reasoning</option><option value="craft">craft (how the author writes)</option>
+        <option value="diagnostic">diagnostic</option><option value="procedure">procedure</option><option value="mixed">mixed</option></select></label>
+      <label>Multi-document strategy <select id="tStrategy"><option value="unified">unified playbook</option><option value="per-document">one playbook per document</option></select></label>
+      <h4>Regions (from any document)</h4>
+      <label class="small"><input type="checkbox" id="tWhole"> every region of these documents, now and later
+        (regions tagged or tagged again in the Library join the topic by themselves)</label>
+      <div id="tRegions" class="list"></div>
+      <div id="tMining" class="small"></div>
+      <h4>Curated data (training data or notes from other apps)</h4>
+      <div id="tCurated" class="list"></div>
+      <div class="row small"><input type="file" id="curFile" title="JSON, JSONL, CSV, TSV, XLSX, YAML, XML, Markdown / Obsidian vault (.zip), HTML, PDF, Word …">
+        <input id="curName" placeholder="name (optional)"><button id="curUpload">Add curated data</button></div>
+      <p class="muted small">Easy Dataset exports, Obsidian notes and dictionaries, spreadsheets, any JSON/YAML/XML records, HTML pages.
+        Every record is kept; use the <b>fact book</b> playbook (Generate) to make it consistent and turn it into training data.</p>
+      <div class="row"><button id="tSave" class="primary">Save topic</button><button id="tNew" class="ghost">New</button><button id="tDelete" class="ghost">Delete</button></div>
+    </div>
+    <div class="card">
+      <h3>Topics</h3>
+      <div id="topicList" class="list"></div>
+      <h4>Whole-book topic</h4>
+      <div class="row"><select id="wbDoc"></select><button id="wbMake">Make topic from all tagged regions</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== APPROACHES -->
+<section id="tab-approaches" class="tab">
+  <div class="cols">
+    <div class="card">
+      <h3>Approach records</h3>
+      <div id="recList" class="list"></div>
+      <h4>Draft a record for a new domain (by analogy)</h4>
+      <div class="row"><input id="newDomain" placeholder="e.g. marketing / campaign strategy"><select id="newIntent"><option>reasoning</option><option>craft</option><option>diagnostic</option><option>procedure</option><option>mixed</option></select><button id="deriveBtn">Draft</button></div>
+      <h4>Universal patterns</h4>
+      <div id="patList" class="list small"></div>
+    </div>
+    <div class="card">
+      <div class="row"><h3>Record</h3><span class="viewtabs" data-for="rec"><button data-v="web" class="on">Web view</button><button data-v="text">Text (JSON)</button></span></div>
+      <div id="recWeb" class="recform"></div>
+      <textarea id="recEdit" rows="30" class="mono hidden"></textarea>
+      <button id="recSave" class="primary">Save record</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== DISCOVER -->
+<section id="tab-discover" class="tab">
+  <div class="cols">
+    <div class="card">
+      <h3>1 · Approach</h3>
+      <div class="row"><select id="dRecord"></select><button id="dNearest" class="ghost">Suggest</button></div>
+      <h3>2 · Prompt (edit before sending)</h3>
+      <button id="dBuild">Build prompt</button>
+      <textarea id="dPrompt" rows="22" class="mono"></textarea>
+      <h3>3 · Guided reading</h3>
+      <div class="row small">
+        <label>pages/round <input id="dPPR" type="number" value="6" min="1"></label>
+        <label>stable rounds <input id="dStable" type="number" value="2" min="1"></label>
+        <label>coverage <input id="dCov" type="number" value="0.6" step="0.1" min="0" max="1"></label>
+        <label>max pages <input id="dMax" type="number" value="120"></label>
+      </div>
+      <button id="dRun" class="primary">Send and read</button>
+      <div id="dJob"></div>
+      <table id="dRounds" class="tbl"></table>
+    </div>
+    <div class="card">
+      <div class="row"><h3>Mining plan</h3><span class="viewtabs" data-for="dPlan"><button data-v="web" class="on">Web view</button><button data-v="text">HTML</button></span></div>
+      <div id="dPlanTools" class="edtools"></div>
+      <div id="dPlanView" class="htmlview webedit" contenteditable="true"></div>
+      <textarea id="dPlan" rows="16" class="mono hidden"></textarea>
+      <div class="row"><button id="dLoadDraft" class="ghost">Load latest draft</button><button id="dApprove" class="primary">Approve plan</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== PLAYBOOK -->
+<section id="tab-playbook" class="tab">
+  <div class="cols">
+    <div class="card">
+      <h3>Build</h3>
+      <div class="row"><button id="pStructure" title="Optional. Texts without a table of contents or book index skip it: the playbook is built from the chapters alone.">Skeleton from table of contents + book index (optional)</button><button id="pMap">Map regions</button><button id="pReduce" class="primary">Build playbook</button></div>
+      <div id="pJob"></div>
+      <h3>Alignment (moves × documents)</h3>
+      <div id="pAlign"></div>
+      <h3>Back-test</h3>
+      <div class="row"><select id="pBtRole"><option value="train">train regions (playbook score)</option><option value="heldout">held-out regions (final)</option></select>
+        <label class="inline">with playbook <select id="pBtWhich" title="Any playbook can be tested on this topic's examples"></select></label><button id="pBacktest">Run back-test</button></div>
+      <div id="pBt"></div>
+    </div>
+    <div class="card">
+      <div class="row"><h3>Playbook</h3><select id="pWhich"></select><button id="pReload" class="ghost">Reload</button></div>
+      <div class="row"><span class="viewtabs" data-for="pEdit"><button data-v="web" class="on">Web view</button><button data-v="text">HTML</button></span></div>
+      <div id="pTools" class="edtools"></div>
+      <div id="pView" class="htmlview playbookview webedit" contenteditable="true"></div>
+      <textarea id="pEdit" rows="22" class="mono hidden"></textarea>
+      <button id="pSave" class="primary">Save playbook</button>
+      <div id="pCov" class="muted small"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== GENERATE -->
+<section id="tab-generate" class="tab">
+  <div class="cols">
+    <div class="card">
+      <h3>Build the training set</h3>
+      <label>Dataset from <select id="gMode">
+        <option value="facts">Facts &amp; data only (no playbook needed)</option>
+        <option value="reasoning">With a playbook (reasoning, or a built-in one)</option>
+        <option value="both">Facts &amp; data + reasoning</option>
+        <option value="mining">Only the extra mining I tick</option></select></label>
+      <details id="gMineBox" class="minebox"><summary>Extra mining <span id="gMineSum" class="muted small">— none (optional: to perform, review, know the limits)</span></summary>
+        <label class="small">Profile <select id="gProfile"><option value="">— choose miners yourself —</option></select></label>
+        <div id="gMiners" class="minegrid small"></div>
+        <div id="gTraceOpts" class="note small hidden">
+          <b>Reasoning traces</b>: anchors <select id="gAnchors"><option value="">automatic (from the topic's domain)</option>
+            <option value="legal">legal: facts → issue → law → precedent → interpretation → application → counterargument → conclusion</option>
+            <option value="medical">medical: presentation → findings → pattern → differential → discriminators → working diagnosis → red flags → management</option>
+            <option value="general">general: givens → question → rules → working → check → exceptions → result</option>
+            <option value="craft">craft (literature): situation → choices → devices → alternatives → effect</option></select>
+          <label class="inline"><input type="checkbox" id="gReconstruct" checked> reconstruct (with the answer, then re-check) when the first solve misses</label>
+          <label class="inline"><input type="checkbox" id="gCraft"> craft notes (unverified) — literature has no answer to check against</label>
+        </div>
+        <p class="muted small">Adds to whatever “Dataset from” makes; with “Only the extra mining I tick”, nothing else is mined.
+          The targets are always the book's own text. <a href="#" id="gMineHelp">What each miner does</a></p>
+      </details>
+      <div class="full">training length (tokens) <span id="gLen" class="radios" data-default="1024"></span></div>
+      <label><input id="gImm" type="checkbox" checked> include the text's own passages</label>
+
+      <fieldset id="gDataBox"><legend>Facts &amp; data</legend>
+        <label>Kind of text <select id="gPreset">
+          <option value="generic">Any text: facts, tables, terms</option>
+          <option value="report">Report / commission / policy: + recommendations and reasons</option>
+          <option value="manual">Manual / guide: + procedures and settings</option>
+          <option value="field-guide">Field guide / catalogue: entity profiles</option>
+          <option value="everything">Everything</option>
+          <option value="custom">Custom (tick below)</option></select></label>
+        <div id="gLenses" class="radios small"></div>
+        <label class="small">Fields for entity profiles (comma separated) <input id="gFields" placeholder="e.g. beak, plumage, call, habitat — or: share, population, area, grant"></label>
+        <div class="grid2 small">
+          <label>rephrasings / fact <input id="gReph" type="number" value="2" min="0"></label>
+          <label>questions / fact <input id="gQa" type="number" value="2" min="0"></label>
+          <label>scenes / fact <input id="gFScenes" type="number" value="1" min="0"></label>
+          <label>tests (share of facts) <input id="gTestShare" type="number" value="0.1" step="0.05" min="0" max="0.5"></label>
+        </div>
+        <div class="row"><button id="gCapture" class="ghost" title="Only capture the data, to review it before generating">Capture data only</button></div>
+        <div id="gDataRep" class="small"></div>
+      </fieldset>
+
+      <fieldset id="gReasonBox"><legend>Playbook</legend>
+      <label>Playbook <select id="gWhich" title="Any playbook, built from any text, or a built-in one"></select></label>
+      <div id="gFbBox" class="hidden">
+        <label>Curated data is used to <select id="fbUse">
+          <option value="both">import it as training data AND generate new training data from it</option>
+          <option value="import">import it as training data (as it is)</option>
+          <option value="generate">generate new training data from it</option></select></label>
+        <label class="small">One name for each thing (one per line: <code>alias = name</code>)
+          <textarea id="fbNames" rows="3" placeholder="IPC 378 = BNS 303&#10;Sec. = Section"></textarea></label>
+        <label class="small"><input type="checkbox" id="fbNamesText"> also apply the names inside the text (not only subjects)</label>
+        <label class="small"><input type="checkbox" id="fbVerify"> ask the model to check each record against its source text (slower)</label>
+        <label class="small"><input type="checkbox" id="fbFlagged"> include flagged records in training</label>
+        <div class="grid2 small"><label>rephrasings <input id="fbReph" type="number" value="2" min="0"></label>
+          <label>questions <input id="fbQa" type="number" value="2" min="0"></label><label>scenes <input id="fbScenes" type="number" value="1" min="0"></label></div>
+        <div class="row"><button id="fbBuild" class="ghost">Build fact book only</button><button id="fbOpen" class="ghost">Open fact book</button></div>
+        <div id="fbState" class="small"></div>
+      </div>
+      <div id="gReasonOpts">
+      <div class="grid2 small">
+        <label>walk-throughs / check <input id="gWalk" type="number" value="3"></label>
+        <label>minimal pairs / check <input id="gPair" type="number" value="2"></label>
+        <label>next-check / check <input id="gNext" type="number" value="1"></label>
+        <label>tests / check <input id="gTest" type="number" value="2"></label>
+        <label>scenes / fact <input id="gScenes" type="number" value="3"></label>
+        <label>method passages <input id="gMethod" type="number" value="4"></label>
+        <label><input id="gNeg" type="checkbox" checked> drop negative-contrast sentences</label>
+        <label>reasoning share with facts <input id="gShare" type="number" value="0.3" step="0.05"></label>
+      </div>
+      <details><summary class="small">Mix of reasoning kinds</summary><div class="grid2 small" id="gMix"></div></details>
+      </div>
+      </fieldset>
+      <label class="small">Dataset name <input id="gName" placeholder="(automatic)"></label>
+      <div class="row"><button id="gRun" class="primary">Generate a new dataset</button><button id="gPause" class="ghost">Pause</button><button id="gCancel" class="ghost">Cancel</button></div>
+      <div id="gJob"></div>
+      <h4>Datasets of this topic</h4>
+      <div id="gSets" class="list small"></div>
+    </div>
+    <div class="card">
+      <h3>Dataset</h3>
+      <div id="gReport"></div>
+      <div id="gSample" class="list small"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== TRAIN -->
+<section id="tab-train" class="tab">
+  <div class="cols">
+    <div class="card">
+      <h3>Train a pack</h3>
+      <label>Dataset <select id="trSource"></select></label>
+      <label>Pack name <input id="trName"></label>
+      <label>Base model <select id="trModel" title="The model the pack is trained on. A pack works only on the model it was trained for: serve the same one (Settings → engine model)."></select></label>
+      <div id="trModelNote" class="small note hidden"></div>
+      <h4>Epochs (passes over every item)</h4>
+      <div id="trEpochs" class="radios"></div>
+      <div id="trEpochNote" class="small note"></div>
+      <h4>Training length (tokens)</h4>
+      <span id="trLen" class="radios" data-default="1024"></span>
+      <div id="trLenNote" class="muted small"></div>
+      <h4>Pack size</h4>
+      <div id="trSuggest" class="note small hidden"></div>
+      <div class="radios" id="trCap">
+        <label><input type="radio" name="trCap" value="small"> small (1 × 4)</label>
+        <label><input type="radio" name="trCap" value="standard" checked> standard (2 × 4)</label>
+        <label><input type="radio" name="trCap" value="medium"> medium (4 × 4)</label>
+        <label><input type="radio" name="trCap" value="large"> large (4 × 6)</label>
+        <label><input type="radio" name="trCap" value="very large"> very large (4 × 12)</label>
+        <label><input type="radio" name="trCap" value="huge"> huge (8 × 12)</label>
+        <label><input type="radio" name="trCap" value="all"> every layer</label>
+        <label><input type="radio" name="trCap" value="custom"> custom</label></div>
+      <div class="row small">
+        <span>experts per layer <button type="button" class="ghost" id="trKMinus" title="fewer experts per layer">−</button>
+          <input id="trK" type="number" value="2" min="1" max="64" style="width:4.5em">
+          <button type="button" class="ghost" id="trKPlus" title="more experts per layer">+</button></span>
+        <span>layers <button type="button" class="ghost" id="trNMinus" title="fewer layers">−</button>
+          <input id="trN" type="number" value="4" min="1" style="width:4.5em">
+          <button type="button" class="ghost" id="trNPlus" title="more layers">+</button></span>
+      </div>
+      <div id="trSize" class="small"></div>
+      <details class="small muted"><summary>What do these mean?</summary>
+        <p>A pack is a number of <b>experts</b> (small networks, each the size of one of the base model's own experts) placed in a number of the
+        model's <b>layers</b>. <b>Experts per layer</b> is how much the pack can hold at each depth; <b>layers</b> is at how many depths it
+        can act. More of either gives the pack more room for knowledge and makes the file larger, and it needs more training data to fill.
+        Facts and terms usually fit a standard pack. A large body of knowledge, or a pack that teaches a way of writing or reasoning, needs more.</p>
+        <p>The layers are chosen automatically as a band starting in the middle of the model; to pick them yourself, type them under
+        <i>layers</i> below (for example 18,19,20,21, or <i>all</i>).</p>
+        <p id="trBudgetHelp"></p>
+        <p>The suggestion above comes from the amount of training text and from what the dataset teaches. It is a rule of thumb that has not
+        been measured yet, so treat it as a starting point and compare pack sizes in the Workbench.</p></details>
+      <div id="trPolyOpts" class="grid2 small hidden">
+        <label>how the pack switches on <select id="trMode"><option value="gate">gate: added on top of the model, as colibri packs (default)</option><option value="route">route: its experts compete for the model's places (displaced the base's own answers in the regression test)</option></select></label>
+        <label>experts start as <select id="trInit"><option value="copy">copies of the base experts the data uses most (default)</option><option value="average">the average of the layer's experts</option><option value="fresh">fresh (random)</option></select></label>
+      </div>
+      <div class="grid2 small">
+        <label>batch <input id="trBatch" type="number" value="2" min="1"></label>
+        <label>gradient accumulation <input id="trAccum" type="number" value="4" min="1"></label>
+        <label>layers (auto, all, or e.g. 18,19,20,21) <input id="trLayers" value="auto"></label>
+        <label>max items (0 = all) <input id="trMax" type="number" value="0" min="0"></label>
+        <label>stop after steps (0 = run the epochs) <input id="trSteps" type="number" value="0"></label>
+        <label>learning rate <input id="trLr" value="1e-4"></label>
+        <label>KL anchor <input id="trKl" value="1.0"></label>
+        <label>learn <select id="trLoss"><option value="all">every token</option><option value="answer">only the reasoning and answer of Q&amp;A / trace items</option></select></label>
+        <label class="inline"><input type="checkbox" id="trCurr"> curriculum (easy → hard, with replay)</label>
+        <label>Q&amp;A items <select id="trChat" title="The Workbench and Hermes ask in the chat format: a pack trained only on 'Question: / Answer:' text sees a different input when used"><option value="plain">as written</option><option value="both" selected>as written + chat format (default)</option><option value="chat">chat format only</option></select></label>
+        
+      </div>
+      <div id="trEst" class="small muted"></div>
+      <div id="trPerf" class="note small hidden"></div>
+      <label><input type="checkbox" id="trUnload" checked> unload the LLM server's models first (frees the GPU)</label>
+      <label><input type="checkbox" id="trReload"> load them again afterwards</label>
+      <p class="muted small">The workbench engine is stopped during training and restarted after. The best epoch (lowest loss on the dataset's tests) is kept.</p>
+      <div class="row"><button id="trRun" class="primary">Train</button><button id="trStopSave" class="ghost">Stop and save</button><button id="trCancel" class="ghost">Cancel</button></div>
+    </div>
+    <div class="card"><h3>Progress</h3><div id="trEpochTable"></div><div id="trJob"></div></div>
+  </div>
+</section>
+
+<!-- ============================== WORKBENCH -->
+<section id="tab-workbench" class="tab">
+  <div class="cols wb">
+    <div class="card">
+      <h3>Engine</h3>
+      <label class="small">Model <select id="wbModel"></select></label>
+      <div id="wbModelNote" class="small"></div>
+      <div id="wbStatus" class="muted small"></div>
+      <div class="row"><button id="wbStart">Start</button><button id="wbStop" class="ghost">Stop</button>
+        <label class="small" title="Which colibri build serves: switch to compare CPU and GPU. Restarts a running engine.">build
+          <select id="wbBuild"><option value="auto">auto</option><option value="gpu">GPU</option><option value="cpu">CPU</option></select></label></div>
+      <h3>Packs</h3>
+      <div id="wbPacks" class="list"></div>
+      <datalist id="dlTicks"><option value="0"></option><option value="50"></option><option value="100" label="as trained"></option><option value="150"></option></datalist>
+      <p class="small muted">Each pack has a <b>strength</b> (how strongly it speaks; 100% = as trained) and, on the Polymath engines, a <b>routing</b> setting (how often it steps in). They are set here only, and every load of the pack uses them, including loads by agents (REST, MCP, Hermes). Changing one re-applies the active packs at once.</p>
+      <h3>Answering</h3>
+      <label>Mode <select id="wbMode"><option value="single">answer with ticked packs</option><option value="compare">compare: base vs each pack</option></select></label>
+      <label>Format <select id="wbTpl"><option value="chat">chat (Qwen chat format, keeps the conversation)</option><option value="qa">Question / Answer</option><option value="plain">plain</option><option value="expert">expert</option><option value="olmoe-chat">OLMoE Instruct chat (OLMoE-0125-Instruct packs only)</option></select></label>
+      <label class="small">System prompt (chat) <textarea id="wbSys" rows="2" placeholder="e.g. You are an expert in Indian criminal law. Answer precisely, cite sections."></textarea></label>
+      <input type="checkbox" id="wbThink" class="hidden">
+      <div class="grid2 small">
+        <label>max tokens <input id="wbMax" type="number" value="1024"></label>
+        <label>temperature <input id="wbTemp" type="number" step="0.05" value="0.3"></label>
+        <label>top-p <input id="wbTopP" type="number" step="0.05" value="0.9"></label>
+        <label>domain (expert format) <input id="wbDomain" value="this field"></label>
+      </div>
+      <label class="small"><input type="checkbox" id="wbStream" checked> show the answer as it is written (single mode)</label>
+      <label class="small"><input type="checkbox" id="wbSolo"> send each message on its own (no conversation history)
+        <span class="info" title="Off (default, chat format): each question is sent with the conversation so far, so the model can follow up. In compare mode each configuration keeps its own thread: the base never sees a pack's earlier answers, nor a pack the base's.&#10;On: every question is sent alone, as if it were the first. Use it to send the same prompt to different packs, strengths or settings and compare the answers fairly; these turns are not added to the conversation.">ⓘ</span></label>
+      <h3>Evaluate a pack on tests</h3>
+      <label class="small">Pack <select id="wbEvalPack"></select></label>
+      <label class="small">Tests from dataset <select id="wbEvalSet"></select></label>
+      <div class="row"><label class="inline small">questions <input id="wbEvalN" type="number" value="40" style="width:5em"></label><button id="wbEval">Run</button></div>
+      <div id="wbEvalJob"></div>
+      <h4>Earlier evaluations</h4>
+      <div id="wbEvalList" class="list small"></div>
+      <h3>Transfer pilot</h3>
+      <p class="muted small">Does reasoning transfer? Two packs from the same problems — answers only vs verified anchored traces —
+        tested on a held-out chapter (new problem families). Uses the topic chosen at the top.</p>
+      <div class="grid2 small"><label>training problems (max) <input id="plTrain" type="number" value="100"></label>
+        <label>held-out problems (max) <input id="plTest" type="number" value="30"></label></div>
+      <label class="small"><input type="checkbox" id="plDoTrain" checked> train and evaluate both packs (else: build the two datasets only)</label>
+      <div class="row"><button id="plRun">Run pilot</button></div>
+      <div id="plJob"></div>
+      <div id="plList" class="list small"></div>
+    </div>
+    <div class="card chat">
+      <div class="row small"><b>Conversation</b><span class="grow"></span><button id="wbNew" class="ghost">New conversation</button></div>
+      <div id="wbChat" class="chatlog"></div>
+      <textarea id="wbQ" rows="4" placeholder="Ask a question… (Ctrl+Enter)"></textarea>
+      <div class="row"><button id="wbAsk" class="primary">Ask</button>
+        <span class="viewtabs" id="wbThinkTabs" title="Qwen thinking: on = the model reasons in a think block first (temperature 0.6, top-p 0.95, 4096 tokens)">
+          <button data-t="off" class="on">Think off</button><button data-t="on">Think on</button></span>
+        <label class="inline small"><input type="checkbox" id="wbShowThink" checked> show thinking</label>
+        <span class="grow"></span><button id="wbJudge" class="ghost">Judge last answers</button></div>
+    </div>
+  </div>
+  <div class="card hidden" id="plView"><div class="row"><h3 id="plTitle">Pilot</h3><span class="grow"></span><button id="plClose" class="ghost">Close</button></div>
+    <div id="plBody"></div></div>
+  <div class="card hidden" id="wbEvalView">
+    <div class="row"><h3 id="wbEvalTitle">Evaluation</h3><span class="grow"></span>
+      <select id="wbEvalFilter"><option value="">all</option><option value="pack_miss">pack wrong</option><option value="worse">worse than base</option><option value="better">better than base</option></select>
+      <button id="wbEvalClose" class="ghost">Close</button></div>
+    <div id="wbEvalTable" class="edtable"></div>
+  </div>
+</section>
+
+<!-- ============================== COMPOSER -->
+<section id="tab-datasets" class="tab">
+  <div class="cols ds">
+    <div class="card">
+      <h3>Datasets</h3>
+      <div class="row small"><select id="dsFilter"><option value="">all topics</option></select>
+        <select id="dsSource"><option value="">any source</option><option value="generate">generated</option><option value="compose">composed</option></select></div>
+      <div id="dsList" class="list"></div>
+      <h4>Curated data → dataset (as it is)</h4>
+      <div id="dsCurated" class="list small"></div>
+    </div>
+    <div class="card">
+      <div class="row"><h3 id="dsTitle">Choose a dataset</h3><span class="grow"></span>
+        <button id="dsRename" class="ghost">Rename</button><button id="dsContinue" class="ghost">Continue</button><button id="dsDelete" class="ghost">Delete</button></div>
+      <div id="dsInfo" class="small muted"></div>
+      <div class="edbar">
+        <select id="edPart"><option value="train">training items</option><option value="tests">tests</option></select>
+        <input id="edQ" placeholder="search words, a phrase, or a pattern" style="flex:1;min-width:14em">
+        <label class="inline small"><input type="checkbox" id="edRegex"> pattern (regex)</label>
+        <label class="inline small"><input type="checkbox" id="edCase"> match case</label>
+        <select id="edKind"><option value="">any kind</option></select>
+        <select id="edEdited"><option value="">all</option><option value="edited">edited</option><option value="reviewed">reviewed</option><option value="unreviewed">not reviewed</option></select>
+        <label class="inline small"><input type="checkbox" id="edNum"> has numbers</label>
+        <input id="edSource" placeholder="source / page" style="width:9em">
+        <button id="edGo">Search</button>
+      </div>
+      <div class="edbar">
+        <span id="edCount" class="small"></span>
+        <button id="edSelAll" class="ghost">Select all matches</button><button id="edSelNone" class="ghost">Clear selection</button>
+        <span class="small" id="edSelN">0 selected</span>
+        <button id="edDel">Delete selected</button>
+        <select id="edSetKind"><option value="">change kind…</option></select>
+        <button id="edReview" class="ghost">Mark reviewed</button>
+        <button id="edMove" class="ghost">Move to tests / training</button>
+        <button id="edAdd" class="ghost">+ Add item</button>
+      </div>
+      <div class="edbar"><input id="edFind" placeholder="find (in selected)"><input id="edRepl" placeholder="replace with">
+        <button id="edPreview">Preview replace</button><button id="edApply" class="primary">Apply replace</button></div>
+      <div id="edPrev" class="small"></div>
+      <div id="edTable" class="edtable"></div>
+      <div class="row small"><button id="edPrevPage" class="ghost">◀</button><span id="edPage"></span><button id="edNextPage" class="ghost">▶</button></div>
+      <h4>Versions</h4>
+      <div id="edVersions" class="list small"></div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-composer" class="tab">
+  <div class="cols">
+    <div class="card">
+      <h3>Combine datasets</h3>
+      <input type="hidden" id="cId">
+      <label>Name <input id="cName" placeholder="e.g. Digital evidence"></label>
+      <label>About (for cross-topic cases) <input id="cAbout"></label>
+      <h4>Datasets (any: reasoning, facts, curated, composed)</h4>
+      <div id="cSetsList" class="list"></div>
+      <div id="cPreview" class="small"></div>
+      <div class="grid2 small"><label>cross-topic sets (when 2+ come with playbooks) <input id="cSets" type="number" value="12"></label><label>cases per set <input id="cPer" type="number" value="3"></label></div>
+      <div class="row"><button id="cSave">Save recipe</button><button id="cBuild" class="primary">Build combined dataset</button></div>
+      <div id="cJob"></div>
+    </div>
+    <div class="card"><h3>Recipes</h3><div id="cList" class="list"></div>
+      <p class="muted small">A recipe remembers its datasets; it is marked stale when one of them changes. Delete datasets in the Datasets tab.</p></div>
+  </div>
+</section>
+
+<!-- ============================== SETTINGS -->
+<section id="tab-settings" class="tab">
+  <div class="cols">
+    <div class="card"><h3>Settings</h3><div id="setForm"></div>
+      <div class="row"><button id="setSave" class="primary">Save settings</button><span id="setNote" class="small muted"></span></div></div>
+    <div class="card">
+      <h3>Engine model <button class="ghost small" id="emRefresh">Refresh</button></h3>
+      <div class="small muted">The model colibri serves and packs are trained on. Found on this machine: colibri containers (ready), the Hugging Face cache (needs converting), and models you can download.</div>
+      <div id="emList" class="list small"></div>
+      <div id="emJob"></div>
+      <h4>Download from Hugging Face <span class="small muted">(mixture-of-experts models only)</span></h4>
+      <div class="small muted">Looked for first in your Hugging Face cache, then in Polymath's models folder: only what is missing is downloaded. Gated models need HF_TOKEN.</div>
+      <div class="row"><input id="hubQ" placeholder="search, e.g. Qwen3-30B-A3B or OLMoE — or a repo id Org/Name" style="flex:1"><button id="hubSearch" class="ghost">Search</button><button id="hubCheckBtn" class="ghost">Check repo</button></div>
+      <div id="hubList" class="list small"></div>
+      <div id="hubInfo" class="small"></div>
+      <div id="hubJob"></div>
+      <h3>LLM server</h3>
+      <div id="lmsInfo" class="small"></div>
+      <div class="row"><button id="lmsRefresh" class="ghost">Refresh</button><button id="lmsUnload" class="ghost">Unload all models</button></div>
+      <h3>Register existing packs</h3>
+      <div class="row"><input id="regFolder" placeholder="folder to look in (optional), e.g. ~/.polymath/runs" style="flex:1"><button id="regScan">Find packs</button></div>
+      <div id="regList" class="list small"></div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-userpack" class="tab">
+  <div class="card">
+    <div class="row"><h3>User pack</h3><span class="small muted">Your preferences, conventions and projects, baked into a pack. Fill the squares, name the pack, create.</span></div>
+    <div class="row">
+      <label>Pack <select id="upSel"><option value="">— new —</option></select></label>
+      <label>Name <input id="upName" placeholder="e.g. my-profile" style="width:180px"></label>
+      <label title="Stack: one small pack per square, combined; one square can be retrained alone. Merged: one pack trained on everything."><input type="radio" name="upMode" value="stack" checked> stack: one small pack per square</label>
+      <label title="All squares trained together into a single pack"><input type="radio" name="upMode" value="merged"> one combined pack</label>
+      <span class="grow"></span>
+      <label title="Accept every statement found in your text without checking the list first"><input type="checkbox" id="upAuto"> skip the check</label>
+      <button id="upCreate" class="primary">Create pack</button>
+    </div>
+    <details class="small"><summary>Options</summary>
+      <div class="row">
+        <label title="Roughly how long one semantic unit is: the LLM divides your text by meaning around this size (a list item is always one unit)">Unit size (characters) <input id="upCps" type="number" value="240" style="width:70px"></label>
+        <label title="0 = no limit">Statements per square (most) <input id="upMaxSt" type="number" value="0" style="width:60px"></label>
+        <label title="0 = no limit. Above a limit nothing is trimmed unless you tick the box">Items (most) <input id="upMax" type="number" value="0" style="width:80px"></label>
+        <label><input type="checkbox" id="upTrim"> trim to that limit</label>
+        <label title="Text per LLM call; 0 = auto from Settings → LLM (a transport limit, not the units)">Text per call <input id="upWin" type="number" value="0" style="width:80px"></label>
+        <label title="Stacks on the Polymath engines: after building, set each square's pack router rows so it takes its own kind of text and stays off general text. Only the packs' router rows change (saved in the stack); the model, its router and the packs' experts do not. No training, minutes."><input type="checkbox" id="upTune" checked> tune the stack's router after building</label>
+        <label>Epochs (most) <input id="upEpochs" type="number" value="4" style="width:60px"></label>
+        <label title="Stop when the held-out loss has not improved for this many epochs">Patience <input id="upPat" type="number" value="1" style="width:50px"></label>
+        <label>Length <input id="upLen" type="number" value="768" style="width:70px"></label>
+        <label title="Items per statement × this. 1 is economical; 2 doubles the situations each preference is shown in, and the cost">Depth <select id="upScale"><option>1</option><option>2</option><option>3</option></select></label>
+      </div>
+      <div class="small muted">Everything is set automatically and can be changed here. The LLM divides each square into semantic units of about the unit size (by meaning, not by count) and writes one statement per unit; each statement gives 1–3 training items × depth; 3 test probes per square. No limits by default; the plan shows the cost before training, which stops early when it stops improving.</div>
+    </details>
+  </div>
+  <div id="upGrid" class="upgrid"></div>
+  <div class="row"><select id="upAddType"></select><input id="upAddTitle" placeholder="title (custom squares)" style="width:200px"><button id="upAdd" class="ghost">+ Add square</button></div>
+  <div class="card" id="upStCard" style="display:none">
+    <div class="row"><h3>What was found</h3><span class="small muted">Untick what is wrong; ✎ to edit. Grey = not found in your text (unticked unless you tick it). "changes" = kept out of the weights, in the profile card.</span>
+      <span class="grow"></span><button id="upAll" class="ghost">Tick all found</button><button id="upBuild" class="primary">Build pack</button></div>
+    <div id="upSubject" class="small"></div>
+    <div id="upPlan" class="small"></div>
+    <div id="upSt"></div>
+  </div>
+  <div class="card" id="upJobCard" style="display:none"><h3>Progress</h3><div id="upJob"></div></div>
+  <div class="card" id="upResCard" style="display:none">
+    <div class="row"><h3>Pack</h3><span id="upRes" class="small"></span><span class="grow"></span>
+      <button id="upLoad" class="ghost">Load in the engine</button><button id="upValidate" class="ghost">Check: base vs pack</button>
+      <label class="small" title="Also ask the probes at strengths 25, 50, 75, 100 and 125%: shows where the pack starts to matter, to choose its strength in the Workbench. Five times the probes."><input type="checkbox" id="upCurve"> with a strength curve</label></div>
+    <div id="upVal" class="small"></div>
+    <details class="small"><summary>Profile card (facts that change; not trained)</summary><pre id="upProfile"></pre></details>
+  </div>
+</section>
+
+<section id="tab-test" class="tab">
+  <div class="card"><h3>Candidates <span class="info" title="A candidate is an engine with none, one or several packs, each at its own strength and routing. Only ticked rows run. The values here are for the test only: they never change a pack's saved dials or what the Workbench has loaded. For every engine with a ticked pack row, the base model on that engine is added as a reference (untick it to leave it out).">ⓘ</span></h3>
+    <div id="tbBase" class="small muted"></div>
+    <div id="tbCands"></div>
+    <div class="row"><button class="ghost" id="tbAdd">Add test</button><span class="small muted">⧉ on a row duplicates it: the same pack at 10%, 100% and 150% is three rows</span></div></div>
+  <div class="card"><h3>Questions <span class="info" title="Each block is one question, sent in the order shown. A run can hold several question sets; a set with 'keep the conversation' is one conversation per candidate, each continuing from its own earlier answers.">ⓘ</span></h3>
+    <div id="tbSets"></div>
+    <div class="row"><button class="ghost" id="tbAddSet">+ question set</button><span class="grow"></span>
+      <select id="tbSetSel"></select><button class="ghost" id="tbSetLoad">Load</button><button class="ghost" id="tbSetSave">Save as…</button><button class="ghost" id="tbSetDel">Delete</button></div></div>
+  <div class="card"><h3>Run</h3>
+    <div class="row small">
+      <label class="inline" title="As in the Workbench: thinking on uses the chat format"><input type="checkbox" id="tbThink"> thinking on</label>
+      <label>format <select id="tbFmt"><option value="chat">chat</option><option value="qa">Question / Answer</option><option value="plain">plain</option></select></label>
+      <label>max tokens <input type="number" id="tbMax" min="8" style="width:6em"></label>
+      <label title="Low, so that two runs of the same candidate agree">temperature <input type="number" id="tbTemp" step="0.1" min="0" max="2" style="width:5em"></label>
+      <label>top-p <input type="number" id="tbTopP" step="0.05" min="0.01" max="1" style="width:5em"></label>
+      <label title="Ask each question this many times; the result shows how many of the repeats agree">repeats <select id="tbRep"><option>1</option><option>3</option><option>5</option></select></label>
+      <input id="tbName" placeholder="run name (optional)" style="width:14em">
+      <button class="primary" id="tbRun">Run</button></div>
+    <div class="small muted">A run is a background job (Jobs tab too): it stops the Workbench's engine, starts each engine once, swaps the packs live for each candidate, saves every answer as it arrives, and puts the Workbench back as it was when it ends, also when it is cancelled. A paused run continues from the next unanswered question.</div>
+    <div id="tbJob"></div></div>
+  <div class="card"><h3>Results</h3>
+    <div class="row"><select id="tbRuns" style="min-width:30em"></select><span class="small muted">Evaluate uses the LLM chosen at the top as the judge; it is not told which candidate wrote an answer</span></div>
+    <div id="tbResult"></div></div>
+</section>
+
+<section id="tab-lab" class="tab">
+  <div class="card"><h3>Train Lab <span class="info" title="Ways of training a pack tried on the same data and compared by what the packs answer. The Lab only trains and scores: nothing here changes the Train tab, its defaults, or any pack in the library. Lab packs stay in the Lab's folder and are never chosen by the assistant or the integrations.">ⓘ</span></h3>
+    <div id="lbBase" class="small muted"></div>
+    <div class="row small">
+      <label>dataset <select id="lbData" style="min-width:24em"></select></label>
+      <label>pack kind <select id="lbEngine"><option value="patched-colibri">B-slot (patched-colibri)</option><option value="polymath-engine">Polymath pack</option></select></label>
+      <input id="lbName" placeholder="run name (optional)" style="width:14em"></div></div>
+  <div class="card"><h3>Reasoning dataset <span class="info" title="Made only when you ask. A Lab dataset: the chosen dataset's items unchanged, plus reasoning items taken from the text and checked. Nothing is written into the topic or the dataset; only into the Lab's folder. Uses the LLM chosen at the top of the page.">ⓘ</span></h3>
+    <details><summary class="small">Make a reasoning dataset</summary>
+    <div class="row small"><label>keep the items of <select id="lrSrc" style="min-width:20em"></select></label>
+      <label>steps <select id="lrSteps"><option value="auto">the topic's playbook, else built in</option><option value="legal">legal</option><option value="medical">medical</option><option value="general">general</option></select></label>
+      <input id="lrName" placeholder="name (optional)" style="width:14em"></div>
+    <div class="row small"><b>reasoning from</b>
+      <label class="inline" title="The text's own worked problems: solved without the answer, else reconstructed and re-solved from the steps alone"><input type="checkbox" id="lrA" checked> worked problems</label>
+      <label class="inline" title="Argument passages laid out as the steps, each step quoting the passage word for word"><input type="checkbox" id="lrB" checked> argument passages</label>
+      <label class="inline" title="Linked facts of the dataset (the answer of one is in the next question) joined into 2- and 3-step questions; the steps are the facts"><input type="checkbox" id="lrD" checked> linked facts</label>
+      <label class="inline" title="A rule from a passage applied to a new, invented situation. Marked constructed in every item. Off by default"><input type="checkbox" id="lrC"> constructed situations</label></div>
+    <div class="row small">
+      <label title="Share of the training items that are reasoning items">reasoning share <input id="lrShare" type="number" value="0.3" min="0" max="0.9" step="0.05" style="width:5em"></label>
+      <label title="Problems, passages and chains kept apart as tests before any item is written">test share <input id="lrTest" type="number" value="0.15" min="0" max="0.5" step="0.05" style="width:5em"></label>
+      <label>training length <input id="lrLen" type="number" value="1024" min="128" step="128" style="width:6em"></label>
+      <label title="Never cut silently">longer items <select id="lrLong"><option value="split">split at step boundaries</option><option value="drop">leave out and count</option><option value="raise">keep whole, raise the length</option></select></label></div>
+    <div class="row small">
+      <label class="inline" title="Also each reasoning item in the chat form with its reasoning inside the thinking block (Qwen). Off: no thinking-block items are made"><input type="checkbox" id="lrThink"> generate reasoning blocks</label>
+      <label class="inline" title="Only the reasoning items and the dataset's items they rest on (the facts of a chain, items quoted in a step)"><input type="checkbox" id="lrOnly"> extract reasoning only</label>
+      <button class="primary" id="lrMake">Make</button></div>
+    <div id="lrJob"></div></details>
+    <div id="lrList"></div></div>
+  <div class="card"><h3>Recipes <span class="info" title="The baseline is today's Train tab defaults and is always trained first. Each ready-made experiment differs from it in one respect. A recipe that differs in more than one setting is marked: the cause of any change cannot be told apart.">ⓘ</span></h3>
+    <div id="lbRecipes"></div>
+    <details><summary class="small">Make a recipe</summary><div id="lbEdit"></div>
+      <div class="row"><input id="lbRName" placeholder="recipe name" style="width:14em"><button class="ghost" id="lbRSave">Save recipe</button><span id="lbRDiff" class="small muted"></span></div></details></div>
+  <div class="card"><h3>Run</h3>
+    <div id="lbEst" class="small muted"></div>
+    <div class="row"><button class="primary" id="lbRun">Start</button><span class="small muted">A background job (Jobs tab too). The Workbench's engine is stopped for it and put back afterwards. A paused run continues at the recipe it was on, and that recipe's training from its last finished epoch.</span></div>
+    <div id="lbJob"></div></div>
+  <div class="card"><h3>Results</h3>
+    <div class="row"><select id="lbRuns" style="min-width:30em"></select><button class="ghost" id="lbCont">Continue</button><button class="ghost" id="lbDel">Delete run</button>
+      <label class="inline small">read with thinking <select id="lbMode"></select></label></div>
+    <div id="lbResult"></div></div>
+  <div class="card"><h3>Test packs <span class="info" title="Lab packs added to the library, marked test_lab. Tick them by hand in the Workbench or the Test tab; the assistant, agents and integrations never choose them. Promote makes one a normal pack. Delete is final.">ⓘ</span></h3>
+    <div id="lbTestPacks"></div></div>
+</section>
+
+<section id="tab-storage" class="tab">
+  <div class="card"><h3>Storage <span class="info" title="Everything Polymath has put on this machine for you: datasets, packs, models (the Hugging Face download, Polymath's models folder and the colibri container can all hold the same model), training checkpoints, caches and temporary files. Choose a category, tick what to delete, then Delete. Deleting is final: there is no bin. Items in use cannot be deleted.">ⓘ</span></h3>
+    <div id="stTop" class="small"></div>
+    <div class="row"><label>show <select id="stCat"></select></label><button class="ghost" id="stAll">select all shown</button><button class="ghost" id="stNone">clear</button>
+      <button class="ghost" id="stReload">Refresh</button><span class="grow"></span><span id="stSel" class="small muted"></span><button id="stDel">Delete selected</button></div>
+    <div id="stItems"></div>
+    <div id="stRoots" class="small muted"></div></div>
+</section>
+
+<section id="tab-jobs" class="tab">
+  <div class="cols">
+    <div class="card"><div class="row"><h3>Jobs</h3><span class="grow"></span><button id="jobsRefresh" class="ghost">Refresh</button><button id="jobsClear" class="ghost">Delete finished</button></div>
+      <div id="jobsList" class="list"></div></div>
+    <div class="card"><h3 id="jobTitle">Job</h3><div id="jobDetail" class="small muted">Click a job to see its log and results.</div></div>
+  </div>
+</section>
+
+<section id="tab-help" class="tab">
+  <div class="cols help">
+    <div class="card"><h3>Help</h3><div id="helpToc" class="list small"></div></div>
+    <div class="card helpdoc" id="helpDoc"></div>
+  </div>
+</section>
+</main>
+
+<nav id="flow" aria-label="Steps">
+  <button class="qs" id="qOpen" title="Choose a PDF or document and get a training set in one step">★ Quick: document → dataset</button>
+  <span class="steps" id="flowSteps"></span>
+</nav>
+
+<dialog id="quickDlg">
+  <form method="dialog" id="quickForm">
+    <h3>★ Quick: document → training set</h3>
+    <p class="muted small">Pick a document, choose what to learn from it, and Packsmith builds the training set in one go.
+      You can open every step afterwards to look or adjust.</p>
+    <h4>1 · Document</h4>
+    <label><input type="radio" name="qSrc" value="new" checked> Upload a file <input type="file" id="qFile"></label>
+    <label><input type="radio" name="qSrc" value="old"> Already uploaded <select id="qDoc"></select></label>
+    <label id="qAsWrap">Read the file as <select id="qAs">
+      <option value="document">a document (pages: book, report, manual …)</option>
+      <option value="curated">curated data (training data or notes from another app)</option></select></label>
+    <div class="row small"><label>pages from <input id="qFrom" type="number" min="1" placeholder="first" style="width:6em"></label>
+      <label>to <input id="qTo" type="number" min="1" placeholder="last" style="width:6em"></label><span class="muted">blank = whole document</span></div>
+    <div id="qCurBox" class="hidden">
+      <h4>2 · Use the curated data to</h4>
+      <label><input type="radio" name="qUse" value="both" checked> import it as training data and generate new data from it</label>
+      <label><input type="radio" name="qUse" value="import"> import it as training data (as it is)</label>
+      <label><input type="radio" name="qUse" value="generate"> generate new training data from it</label>
+      <p class="muted small">A fact book is built first: every record kept, restatements merged, conflicts shown for you to settle.</p>
+    </div>
+    <div id="qDocBox">
+    <h4>2 · What to learn</h4>
+    <label><input type="radio" name="qMode" value="facts" checked> Facts &amp; data from the text (no playbook needed)</label>
+    <label><input type="radio" name="qMode" value="reasoning"> Reasoning, using a playbook that already exists</label>
+    <label><input type="radio" name="qMode" value="both"> Both</label>
+    <label id="qPbWrap">Playbook <select id="qPb"></select></label>
+    <label>Also learn to <select id="qProfile"><option value="">— know and reason only —</option></select></label>
+    <label>Kind of text <select id="qPreset">
+      <option value="generic">Any text: facts, tables, terms</option>
+      <option value="report">Report / commission / policy</option>
+      <option value="manual">Manual / guide</option>
+      <option value="field-guide">Field guide / catalogue</option>
+      <option value="everything">Everything</option></select></label>
+    </div>
+    <div class="small">training length (tokens) <span id="qLen" class="radios" data-default="1024"></span></div>
+    <label>Name <input id="qName" placeholder="e.g. 16th Finance Commission ch. 4–5"></label>
+    <h4>3 · Build</h4>
+    <div id="qJob" class="small"></div>
+    <div class="row"><button type="button" id="qRun" class="primary">Build training set</button>
+      <button type="button" id="qGoGen" class="ghost hidden">Open the dataset</button>
+      <button type="button" id="qGoTrain" class="ghost hidden">Train a pack from it →</button>
+      <button value="close" class="ghost">Close</button></div>
+  </form>
+</dialog>
+
+<div id="helpDrawer" class="drawer hidden"><div class="row"><b id="helpDrawerTitle">Help</b><span class="grow"></span>
+  <button id="helpDrawerFull" class="ghost">Open in Help</button><button id="helpDrawerClose" class="ghost">✕</button></div><div id="helpDrawerBody" class="helpdoc"></div></div>
+<footer id="toast"></footer>
+<script src="/ui/help.js"></script>
+<script src="/ui/app.js"></script>
+<script src="/ui/more.js"></script>
+<script src="/ui/userpack.js"></script>
+<script src="/ui/test.js"></script>
+<script src="/ui/lab.js"></script>
+<script src="/ui/storage.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+--- a/c/qwen36.c
++++ b/c/qwen36.c
+@@ -76,6 +76,7 @@
+ #include "pin_pool.h"   /* riuso del prefisso tra turni (shared) */
+ #include "decode_batch.h" /* ColiSubmit + coli_submit_ext: le chiavi key=value di SUBMIT */
+ #include "json.h"   /* tokenizer.json parsing (reuse minimal parser) */
++#include "coli_kn.h"   /* moe-knowledge: knowledge-expert packs, swapped live */
+ #include "tok_unicode.h"        /* is_S/is_L/is_N: the exact pre-tokenizer classes (Clef) */
+ #include "tok_unicode_o200k.h"  /* is_U/is_X: the case classes of o200k's letter rules (Flint) */
+ #include "tok_unicode_flint.h"  /* is_PS: [\p{P}\p{S}] (Flint) */
+@@ -5956,6 +5957,7 @@
+ static void moe(Model *m, Layer *l, int layer, float *x, int S, float *out) {
+     if (m->c.muse) { moe_muse(m, l, layer, x, S, out); return; }
+     moe_ex(m, l, layer, x, S, out, NULL, 0);
++    coli_kn_apply(layer, x, S, out);   /* moe-knowledge: a pack's knowledge experts (coli_kn.h) */
+ }
+ 
+ /* Gated DeltaNet (linear_attention) forward — recurrent gated-delta-rule.
+@@ -6660,6 +6662,7 @@
+ 
+ #ifdef COLI_CUDA
+ #include "qwen36_cuda_chain.h"  /* COLI_CUDA_CHAIN: every layer's dense chain on the CUDA device */
++#include "qwen36_kn_cuda.h"     /* moe-knowledge: a pack's knowledge experts in that chain */
+ /* The CUDA chain's prompt staging (q36cc_gguf_stage_bytes), out of the tier's expert budget when
+  * the card holds fewer than every routed expert of a GGUF (qt_reserve_short): taken from the
+  * mirrors' room instead, a 16K prompt on Flint (RTX PRO 4000) found no memory for the routed
+@@ -6700,6 +6703,7 @@
+ 
+ static float *step_ex_control(Model *m, const int *ids, int S, int pos_base, int nlogits,
+                               Q36StepControl *control) {
++    coli_kn_poll(m);   /* moe-knowledge: a requested live swap of the pack, between forward passes */
+     Cfg *c = &m->c; int D = c->hidden;
+     if (control) control->result = 0;
+     if (m->resident_mode && m->first_step) m->resident_collecting = 1;
+@@ -9340,6 +9344,24 @@
+ }
+ #endif
+ 
++/* moe-knowledge: knowledge-expert packs (coli_kn.h). A swap drops the states a prompt could
++ * otherwise reuse: they were built under the old pack. */
++static void q36_kn_invalidate(void *mv) {
++    Model *m = mv;
++    kv_prefix_clear(&m->kvp);
++    if (g_q36_park.on) q36_park_free(m);
++}
++static void q36_kn_start(Model *m) {
++    const Cfg *c = &m->c;
++    ColiKnGeom g = {c->n_layers, c->hidden, c->inter, c->n_experts, c->topk, c->vocab};
++    if (c->muse || c->n_experts <= 0) g_kn_refuse = "knowledge packs need a routed MoE (not Muse Spark or a dense model)";
++#ifdef COLI_VULKAN
++    if (g_vk_chain) g_kn_refuse = "the Vulkan layer chain does not run knowledge experts (COLI_VK_CHAIN=0 runs them)";
++#endif
++    g_kn_invalidate = q36_kn_invalidate;
++    coli_kn_from_env(m, &g, "qwen36");
++}
++
+ int main(int argc, char **argv) {
+     /* Physical-core team sizing, as colibri/inkling/kimi_k3/olmoe/deepseek-v41
+      * do. Without it this engine takes one thread per logical CPU, which on an
+@@ -9902,6 +9924,7 @@
+ #endif
+         if (!dev) q36_trunk_q8_interleave(&m);
+     }
++    q36_kn_start(&m);   /* moe-knowledge: COLI_OVERLAY / OLM_OVERLAY, and the SIGHUP live swap */
+     /* coli serve mode: speak the gateway wire protocol instead of argv
+      * generation. AFTER the tier init: serve sessions ride the VRAM experts
+      * exactly like argv runs, and serve_loop never returns. */

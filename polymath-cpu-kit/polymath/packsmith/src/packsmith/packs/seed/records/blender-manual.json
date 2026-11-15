@@ -1,0 +1,69 @@
+{
+ "id": "blender-manual",
+ "domain": "software / Blender 3D manual",
+ "intent": "procedure",
+ "books": [
+  "software manual",
+  "API reference"
+ ],
+ "moves": [
+  {
+   "name": "goal-to-tool",
+   "pattern": "decision",
+   "desc": "Pick the tool or approach for the goal"
+  },
+  {
+   "name": "workflow",
+   "pattern": "sequence",
+   "desc": "Follow the workflow steps"
+  },
+  {
+   "name": "settings",
+   "pattern": "element",
+   "desc": "Set the parameters that matter"
+  },
+  {
+   "name": "troubleshoot",
+   "pattern": "distinction",
+   "desc": "Symptom → cause → fix"
+  },
+  {
+   "name": "version-change",
+   "pattern": "exception",
+   "desc": "Account for version differences"
+  },
+  {
+   "name": "script",
+   "pattern": "craft",
+   "desc": "Express the steps as a bpy script"
+  }
+ ],
+ "order": [
+  "goal",
+  "approach",
+  "setup",
+  "operations",
+  "settings",
+  "check result"
+ ],
+ "where": [
+  "how-to pages",
+  "property tables",
+  "release notes",
+  "troubleshooting sections"
+ ],
+ "situations": [
+  "artist's tutorial",
+  "support forum answer",
+  "studio pipeline note"
+ ],
+ "pitfalls": [
+  "applying 4.x workflows to 5.x"
+ ],
+ "analogies": [
+  "law/drafting: required parts + style"
+ ],
+ "test": "tasks → bpy scripts run headless and checked",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

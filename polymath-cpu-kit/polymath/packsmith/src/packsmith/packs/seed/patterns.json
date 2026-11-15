@@ -1,0 +1,84 @@
+[
+ {
+  "name": "gate",
+  "desc": "Does this apply at all? A threshold condition that opens or closes the whole analysis.",
+  "examples": {
+   "law": "Is there a domestic relationship?",
+   "medicine": "Is this an emergency?",
+   "ornithology": "Is it a raptor?",
+   "software": "Is this feature available in this version?"
+  }
+ },
+ {
+  "name": "element",
+  "desc": "A required component that must be present for an outcome (ingredients, criteria, field marks).",
+  "examples": {
+   "law": "ingredients of an offence",
+   "medicine": "diagnostic criteria",
+   "ornithology": "field marks"
+  }
+ },
+ {
+  "name": "cue",
+  "desc": "An observable signal that indicates a condition (evidence, symptom, metric).",
+  "examples": {
+   "law": "conduct indicating intention",
+   "medicine": "sign or symptom",
+   "marketing": "a metric moving"
+  }
+ },
+ {
+  "name": "distinction",
+  "desc": "The deciding difference between look-alike outcomes.",
+  "examples": {
+   "law": "theft vs extortion",
+   "medicine": "differential diagnosis",
+   "ornithology": "look-alike species"
+  }
+ },
+ {
+  "name": "sequence",
+  "desc": "An ordered series of steps or an order of examination.",
+  "examples": {
+   "law": "procedure stages",
+   "medicine": "examination order",
+   "blender": "modelling workflow"
+  }
+ },
+ {
+  "name": "exception",
+  "desc": "Something that defeats or modifies an otherwise valid conclusion.",
+  "examples": {
+   "law": "general exceptions",
+   "medicine": "contraindications",
+   "software": "unsupported case"
+  }
+ },
+ {
+  "name": "decision",
+  "desc": "Choosing an outcome or action once conditions are known.",
+  "examples": {
+   "law": "charge or remedy",
+   "medicine": "treatment",
+   "marketing": "channel and message"
+  }
+ },
+ {
+  "name": "tradeoff",
+  "desc": "Weighing competing considerations.",
+  "examples": {
+   "law": "proportionality",
+   "medicine": "risk vs benefit",
+   "engineering": "cost vs strength"
+  }
+ },
+ {
+  "name": "craft",
+  "desc": "How the author writes: structure, voice, devices, narration, rhythm.",
+  "examples": {
+   "literature": "character introduction, dialogue, imagery",
+   "law": "drafting style",
+   "manuals": "instruction style"
+  }
+ }
+]

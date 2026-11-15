@@ -1,0 +1,71 @@
+{
+ "id": "law-drafting",
+ "domain": "law / legal drafting and pleadings",
+ "intent": "procedure",
+ "books": [
+  "drafting manual",
+  "pleadings precedents"
+ ],
+ "moves": [
+  {
+   "name": "choose-document",
+   "pattern": "decision",
+   "desc": "Choose the document and forum for the client's goal"
+  },
+  {
+   "name": "required-parts",
+   "pattern": "element",
+   "desc": "Include mandatory parts and averments"
+  },
+  {
+   "name": "plead-facts",
+   "pattern": "sequence",
+   "desc": "Plead material facts in order"
+  },
+  {
+   "name": "frame-prayer",
+   "pattern": "decision",
+   "desc": "Frame reliefs consistent with the pleaded facts"
+  },
+  {
+   "name": "verify-annex",
+   "pattern": "element",
+   "desc": "Verification, affidavit, annexures, court fee, limitation"
+  },
+  {
+   "name": "drafting-style",
+   "pattern": "craft",
+   "desc": "Precise, consistent drafting language and defined terms"
+  }
+ ],
+ "order": [
+  "client goal",
+  "document and forum",
+  "parties and jurisdiction",
+  "facts",
+  "grounds",
+  "prayer",
+  "verification"
+ ],
+ "where": [
+  "model drafts",
+  "notes on forms",
+  "common defects lists"
+ ],
+ "situations": [
+  "chambers conference",
+  "registry objection",
+  "opposing counsel's reply",
+  "senior's review"
+ ],
+ "pitfalls": [
+  "prayer wider than pleadings",
+  "missing limitation averment"
+ ],
+ "analogies": [
+  "software templates: required fields + style"
+ ],
+ "test": "client brief → draft; checklist of required parts; blind comparison",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

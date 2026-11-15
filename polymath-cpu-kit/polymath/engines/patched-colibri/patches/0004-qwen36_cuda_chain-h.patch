@@ -1,0 +1,28 @@
+--- a/c/qwen36_cuda_chain.h
++++ b/c/qwen36_cuda_chain.h
+@@ -136,6 +136,9 @@
+ 
+ static int g_cuda_chain = 0;     /* COLI_CUDA_CHAIN asked for it and the chain is up */
+ static Q36CChain *q36cc_of(Model *m) { return (Q36CChain *)m->cchain; }
++/* moe-knowledge (qwen36_kn_cuda.h): a pack's knowledge experts in the chain */
++static int q36_kn_cuda_bufs(Q36CChain *ch, Model *m, int rows);
++static CcBuf *q36_kn_cuda_layer(Q36CChain *ch, Model *m, int i, int n, CcBuf *routed);
+ static int q36cc_dm_able(Q36CChain *ch, Model *m);
+ 
+ /* on unless COLI_CUDA_CHAIN=0: the chain took 34 -> 59 tok/s of decode on Qwen3.6-35B int4-g64, 85 with its
+@@ -557,6 +560,7 @@
+              cc_reserve(&ch->routed, r * RW * F, CC_UP) &&
+              cc_reserve(&ch->cs, r * (c->rotary_dim > 0 ? c->rotary_dim : 2) * F, CC_UP) &&
+              cc_reserve(&ch->csd, r * (c->rotary_dim > 0 ? c->rotary_dim : 2) * F, CC_DEV);
++    ok = ok && q36_kn_cuda_bufs(ch, m, rows);   /* moe-knowledge */
+     if (ok && c->muse)   /* Muse Spark's alone: the attention gate's rows, the experts' input rows */
+         ok = cc_reserve(&ch->agb, r * AG * F, CC_DEV) && cc_reserve(&ch->lat, r * LT * F, CC_DEV) && cc_reserve(&ch->latd, r * LT * F, CC_DOWN);
+     /* LFM3's: a conv's B | C | x rows, the heads' gate logits, the sliding layers' RoPE table beside the full ones' */
+@@ -1216,6 +1220,7 @@
+                cc_norm(ch->tmp, ch->prm, ch->tmp, &p) && cc_ew(ch->x, ch->x, ch->tmp, ch->prm, ch->prm, &g);
+     }
+     const int routed_l = c->n_experts > 0 && !q36_dense_l(c, i), SI = m->L[i].sh_I;   /* a Flint dense layer routes nothing */
++    if (routed_l && !(routed = q36_kn_cuda_layer(ch, m, i, n, routed))) return 0;   /* moe-knowledge: + the pack's experts */
+     int flags = (routed_l ? 1 : 0) | (SI > 0 ? 2 : 0) | (m->L[i].sh_gate && SI > 0 ? 4 : 0);
+     const int rg = ch->rgf[i] && n <= Q36CC_RG_ROWS, E1 = c->n_experts + 1;   /* the gate after the router's logits in lg */
+     CcEw p = {CC_EW_COMBINE, n * c->hidden, c->hidden, 1, flags, rg ? E1 : 1, 0, 0, 0, 0, rg ? c->n_experts : 0, 1.f};

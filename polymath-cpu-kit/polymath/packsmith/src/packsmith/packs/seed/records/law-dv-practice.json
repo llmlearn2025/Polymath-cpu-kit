@@ -1,0 +1,69 @@
+{
+ "id": "law-dv-practice",
+ "domain": "law / domestic violence practice guide",
+ "intent": "reasoning",
+ "books": [
+  "practice guide",
+  "handbook for protection officers"
+ ],
+ "moves": [
+  {
+   "name": "establish-relationship",
+   "pattern": "gate",
+   "desc": "Establish a domestic relationship and shared household"
+  },
+  {
+   "name": "characterise-abuse",
+   "pattern": "element",
+   "desc": "Classify abuse: physical, sexual, verbal/emotional, economic"
+  },
+  {
+   "name": "link-evidence",
+   "pattern": "cue",
+   "desc": "Link evidence (DIR, medical record, witnesses) to each form of abuse"
+  },
+  {
+   "name": "match-relief",
+   "pattern": "decision",
+   "desc": "Match reliefs to the harm: protection, residence, monetary, custody, compensation"
+  },
+  {
+   "name": "route-procedure",
+   "pattern": "sequence",
+   "desc": "Route through complaint, protection officer, magistrate, interim and final orders"
+  },
+  {
+   "name": "weigh-interim",
+   "pattern": "tradeoff",
+   "desc": "Weigh urgency for interim relief"
+  }
+ ],
+ "order": [
+  "parties and relationship",
+  "forms of abuse",
+  "evidence",
+  "reliefs",
+  "procedure and timelines"
+ ],
+ "where": [
+  "case summaries",
+  "forms and model applications",
+  "checklists for officers"
+ ],
+ "situations": [
+  "protection officer's report",
+  "client interview",
+  "magistrate's order",
+  "legal-aid counsel note"
+ ],
+ "pitfalls": [
+  "reading delay as consent",
+  "missing economic abuse"
+ ],
+ "analogies": [
+  "social work case assessment"
+ ],
+ "test": "client scenarios → relationship finding, abuse types, reliefs, next procedural step",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

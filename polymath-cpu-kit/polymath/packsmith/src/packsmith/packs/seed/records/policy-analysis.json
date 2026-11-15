@@ -1,0 +1,68 @@
+{
+ "id": "policy-analysis",
+ "domain": "public policy analysis",
+ "intent": "reasoning",
+ "books": [
+  "policy reports",
+  "administrative manuals"
+ ],
+ "moves": [
+  {
+   "name": "define-problem",
+   "pattern": "gate",
+   "desc": "Define the problem and who it affects"
+  },
+  {
+   "name": "evidence",
+   "pattern": "cue",
+   "desc": "Gather evidence and operational ground truth"
+  },
+  {
+   "name": "options",
+   "pattern": "distinction",
+   "desc": "Compare policy options"
+  },
+  {
+   "name": "constraints",
+   "pattern": "exception",
+   "desc": "Legal, fiscal and institutional constraints"
+  },
+  {
+   "name": "decide",
+   "pattern": "decision",
+   "desc": "Recommend with implementation path"
+  },
+  {
+   "name": "proportionality",
+   "pattern": "tradeoff",
+   "desc": "Weigh costs, benefits and rights"
+  }
+ ],
+ "order": [
+  "problem",
+  "evidence",
+  "options",
+  "constraints",
+  "recommendation",
+  "implementation"
+ ],
+ "where": [
+  "option appraisals",
+  "case studies",
+  "evaluation reports"
+ ],
+ "situations": [
+  "cabinet note",
+  "departmental meeting",
+  "public consultation"
+ ],
+ "pitfalls": [
+  "generic national recommendations without institutional fit"
+ ],
+ "analogies": [
+  "law: issue-law-application"
+ ],
+ "test": "policy scenarios → option choice and justification",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

@@ -1,0 +1,77 @@
+{
+ "id": "ornithology-id",
+ "domain": "ornithology / field guide identification",
+ "intent": "diagnostic",
+ "books": [
+  "field guide",
+  "identification handbook"
+ ],
+ "moves": [
+  {
+   "name": "size-shape",
+   "pattern": "gate",
+   "desc": "Size, shape and posture first"
+  },
+  {
+   "name": "check-bill",
+   "pattern": "element",
+   "desc": "Bill shape, length and colour"
+  },
+  {
+   "name": "plumage",
+   "pattern": "element",
+   "desc": "Head pattern, wing bars, tail, by age and sex"
+  },
+  {
+   "name": "behaviour-habitat",
+   "pattern": "cue",
+   "desc": "Behaviour, habitat and season as cues"
+  },
+  {
+   "name": "separate-lookalikes",
+   "pattern": "distinction",
+   "desc": "Separate similar species by the deciding mark"
+  },
+  {
+   "name": "range-check",
+   "pattern": "exception",
+   "desc": "Confirm with range and season; flag vagrants"
+  },
+  {
+   "name": "call",
+   "pattern": "cue",
+   "desc": "Use calls and songs"
+  }
+ ],
+ "order": [
+  "size and shape",
+  "bill",
+  "head",
+  "wings and tail",
+  "legs",
+  "behaviour",
+  "habitat and range",
+  "season",
+  "call"
+ ],
+ "where": [
+  "identification keys",
+  "'similar species' boxes",
+  "plates and captions"
+ ],
+ "situations": [
+  "field notebook",
+  "birding trip report",
+  "survey log",
+  "guide explaining to a beginner"
+ ],
+ "pitfalls": [
+  "relying on colour in poor light"
+ ],
+ "analogies": [
+  "medicine/differential diagnosis"
+ ],
+ "test": "unseen field descriptions → species; minimal pairs on one mark",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}

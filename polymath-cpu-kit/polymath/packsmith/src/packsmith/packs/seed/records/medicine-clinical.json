@@ -1,0 +1,81 @@
+{
+ "id": "medicine-clinical",
+ "domain": "medicine / clinical diagnosis textbook",
+ "intent": "diagnostic",
+ "books": [
+  "clinical medicine textbook",
+  "case-based review"
+ ],
+ "moves": [
+  {
+   "name": "triage",
+   "pattern": "gate",
+   "desc": "Recognise emergencies and red flags first"
+  },
+  {
+   "name": "history",
+   "pattern": "sequence",
+   "desc": "Take history in order: complaint, onset, course, associated features, risk factors"
+  },
+  {
+   "name": "examine",
+   "pattern": "sequence",
+   "desc": "Examine systematically"
+  },
+  {
+   "name": "interpret-sign",
+   "pattern": "cue",
+   "desc": "Read signs and results as evidence for conditions"
+  },
+  {
+   "name": "differential",
+   "pattern": "distinction",
+   "desc": "Build and narrow the differential by deciding features"
+  },
+  {
+   "name": "investigate",
+   "pattern": "decision",
+   "desc": "Choose tests that separate the remaining differentials"
+  },
+  {
+   "name": "treat",
+   "pattern": "decision",
+   "desc": "Choose treatment, with contraindications"
+  },
+  {
+   "name": "contraindication",
+   "pattern": "exception",
+   "desc": "Exclude unsafe options"
+  }
+ ],
+ "order": [
+  "red flags",
+  "history",
+  "examination",
+  "differential",
+  "investigations",
+  "diagnosis",
+  "treatment"
+ ],
+ "where": [
+  "case vignettes",
+  "differential diagnosis tables",
+  "algorithms and flowcharts"
+ ],
+ "situations": [
+  "outpatient consultation",
+  "ward round",
+  "handover note",
+  "referral letter",
+  "emergency department"
+ ],
+ "pitfalls": [
+  "anchoring on the first diagnosis"
+ ],
+ "analogies": [
+  "law/offence commentary"
+ ],
+ "test": "unseen vignettes → diagnosis; minimal pairs on one symptom; next-test questions",
+ "provenance": "seed (packsmith), unreviewed",
+ "scores": {}
+}
